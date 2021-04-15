@@ -7,11 +7,7 @@ mainly done for my personal usage. There is also functions related to Fourier
 and convolution like `ir2fr`.
 
 It is useful for convolution [1]: they respect the Perceval equality, e.g., the
-value of the null frequency is equal to
-
- 1
--- ∑ₙ xₙ.
-√N
+value of the null frequency is equal to `1/√N * ∑ₙ xₙ`.
 
 ```
 [1] B. R. Hunt "A matrix theory proof of the discrete convolution theorem", IEEE
