@@ -15,10 +15,11 @@
 
 Unitary discrete Fourier transform (and related)
 
-This module implements unitary discrete Fourier transform, that is orthonormal.
-It is just a thin wrapper around Numpy or pyFFTW (maybe others in the future),
-mainly done for my personal usage. They are useful for convolution [1]: they
-respect the Perceval equality, the value of the null frequency is equal to
+This module implements unitary discrete Fourier transforms, which are
+orthonormal. It is just a thin wrapper around Numpy or pyFFTW (maybe others in
+the future), mainly done for my personal usage. They are useful for convolution
+[1]: they respect the Perceval equality, the value of the null frequency is
+equal to
 
  1
 -- ∑ₙ xₙ.
@@ -26,8 +27,8 @@ respect the Perceval equality, the value of the null frequency is equal to
 
 If the pyFFTW module is present, his functions are used.
 
-The transform are always applied on last axes for performances (C-order array).
-For more flexible usage, you must use the numpy.fft functions directly.
+The transforms are always applied on the last axes for performances (C-order
+array). For more flexible usage, you must use the numpy.fft functions directly.
 
 """
 
@@ -450,7 +451,7 @@ def diff_op(ndim, axe):
 def Laplacian(ndim: int) -> array:
     """Return the Laplacian impulse response
 
-    Second order difference in each axis.
+    The second-order difference in each axis.
 
     Parameters
     ----------
