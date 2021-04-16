@@ -4,10 +4,10 @@
 # Everyone is permitted to copy and distribute verbatim or modified
 # copies of this license document, and changing it is allowed as long
 # as the name is changed.
-
+#
 #            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
 #   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-
+#
 #  0. You just DO WHAT THE FUCK YOU WANT TO.
 
 """UDFT
@@ -61,7 +61,7 @@ __version__ = "1.0.0"
 __maintainer__ = "François Orieux"
 __email__ = "francois.orieux@universite-paris-saclay.fr"
 __status__ = "stable"
-__url__ = ""
+__url__ = "https://github.com/forieux/udft"
 __keywords__ = "fft, Fourier"
 
 
@@ -424,7 +424,7 @@ def fr2ir(
     return np.ascontiguousarray(irpadded[tuple([slice(0, s) for s in shape])])
 
 
-def diff_op(ndim, axe):
+def diff_ir(ndim, axe):
     """Return the impulse response of first order differences
 
     Parameters
