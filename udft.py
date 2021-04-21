@@ -138,7 +138,7 @@ def rdftn(inarray: array, ndim: int = None) -> array:
     return rfftn(inarray, axes=range(-ndim, 0), norm="ortho")
 
 
-def irdftn(inarray: array, shape: Tuple[int]) -> array:
+def irdftn(inarray: array, shape: Tuple[int, ...]) -> array:
     """ND real unitary inverse discrete Fourier transform
 
     Consider the Hermitian property of input and return real values.
@@ -256,7 +256,7 @@ def norm(inarray: array, real: bool = True) -> float:
     return np.sum(np.abs(inarray) ** 2)
 
 
-def crandn(shape: Tuple[int]) -> array:
+def crandn(shape: Tuple[int, ...]) -> array:
     """Draw from white complex Normal
 
     Draw unitary DFT of real white Gaussian field of zero mean and variance
@@ -269,7 +269,10 @@ def crandn(shape: Tuple[int]) -> array:
 
 
 def ir2fr(
-    imp_resp: array, shape: Tuple[int], origin: Tuple[int] = None, real: bool = True
+    imp_resp: array,
+    shape: Tuple[int, ...],
+    origin: Tuple[int, ...] = None,
+    real: bool = True,
 ) -> array:
     """Compute the frequency response from impulse responses
 
@@ -360,7 +363,10 @@ def ir2fr(
 
 
 def fr2ir(
-    freq_resp: array, shape: Tuple[int], origin: Tuple[int] = None, real: bool = True
+    freq_resp: array,
+    shape: Tuple[int, ...],
+    origin: Tuple[int, ...] = None,
+    real: bool = True,
 ) -> array:
     """Return the impulse responses from frequency responses
 
