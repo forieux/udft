@@ -88,9 +88,8 @@ def dftn(inarray: array, ndim: int = None) -> array:
     ----------
     inarray : array-like
         The array to transform.
-
     ndim : int, optional
-        The `ndim` last axis along which to compute the transform. All
+        The `ndim` last axes along which to compute the transform. All
         axes by default.
 
     Returns
@@ -112,9 +111,8 @@ def idftn(inarray: array, ndim: int = None) -> array:
     ----------
     inarray : array-like
         The array to transform.
-
     ndim : int, optional
-        The `ndim` last axis along wich to compute the transform. All
+        The `ndim` last axes along wich to compute the transform. All
         axes by default.
 
     Returns
@@ -137,9 +135,8 @@ def rdftn(inarray: array, ndim: int = None) -> array:
     ----------
     inarray : array-like
         The array of real values to transform.
-
     ndim : int, optional
-        The `ndim` last axis along which to compute the transform. All
+        The `ndim` last axes along which to compute the transform. All
         axes by default.
 
     Returns
@@ -163,7 +160,6 @@ def irdftn(inarray: array, shape: Tuple[int, ...]) -> array:
     ----------
     inarray : array-like
         The array to transform of complex values.
-
     shape : tuple of int
         The output shape of the `len(shape)` last axes.
 
@@ -215,7 +211,7 @@ def idft2(inarray: array) -> array:
 def rdft(inarray: array) -> array:
     """1D real unitary discrete Fourier transform
 
-    Compute the unitary real DFT on the last axis. Consider the Hermitian
+    Compute the unitary real DFT on the last axes. Consider the Hermitian
     property when the input is real.
 
     Parameters
@@ -258,7 +254,6 @@ def norm(inarray: array, real: bool = True) -> float:
     ----------
     inarray : array-like
         The input array.
-
     real : boolean, optional
         If True, `array` is supposed to contain half of the frequency plane.
 
@@ -302,16 +297,13 @@ def ir2fr(
     ----------
     imp_resp : array-like
         The impulse responses.
-
     shape : tuple of int
         A tuple of integer corresponding to the target shape of the frequency
         responses, without hermitian property. The DFT is performed on the
-        `len(shape)` last axis of ndarray.
-
+        `len(shape)` last axes of ndarray.
     origin : tuple of int, optional
         The index of the origin (0, 0) of the impulse response. The center by
         default (shape[i] // 2).
-
     real : boolean, optional
         If True, `imp_resp` is supposed real, and read DFT is used.
 
@@ -398,14 +390,11 @@ def fr2ir(
     ----------
     freq_resp : array-like
        The frequency responses.
-
     shape : tuple of int
        Output shape of the impulse responses.
-
     origin : tuple of int, optional
         The index of the origin (0, 0) of output the impulse response. The center by
         default (shape[i] // 2).
-
     real : boolean, optional
        If True, imp_resp is supposed real, and real DFT is used.
 
@@ -446,16 +435,15 @@ def fr2ir(
     return np.ascontiguousarray(irpadded[tuple([slice(0, s) for s in shape])])
 
 
-def diff_ir(ndim, axe):
+def diff_ir(ndim, axis):
     """Return the impulse response of first order differences
 
     Parameters
     ----------
     ndim : int
         The number of dimensions.
-
-    axe : int
-        The axe where the diff operates.
+    axis : int
+        The axis where the diff operates.
 
     Returns
     -------
