@@ -5,12 +5,13 @@ description = "Unitary discrete Fourier Transform (and related)"
 authors = ["François Orieux <francois.orieux@universite-paris-saclay.fr>"]
 maintainers = ["François Orieux <francois.orieux@universite-paris-saclay.fr>"]
 readme = "README.md"
-license = "WTFPL"
+license = "Public Domain"
 homepage = "https://github.com/forieux/udft/"
 documentation = "https://qmm.readthedocs.io/en/stable/"
 repository = "https://github.com/forieux/udft/"
 keywords = ["fft", "orthonormal"]
 classifiers = [
+    "License :: Public Domain",
     "Development Status :: 5 - Production/Stable",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Mathematics",
