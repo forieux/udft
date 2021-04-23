@@ -1,5 +1,7 @@
 # UDFT: Unitary Discrete Fourier Transform (and related)
 
+![licence](https://img.shields.io/github/license/forieux/udft) ![pypi](https://img.shields.io/pypi/v/udft)  ![status](https://img.shields.io/pypi/status/udft) ![version](https://img.shields.io/pypi/pyversions/udft)
+
 This module implements unitary discrete Fourier transform, that is orthonormal.
 This module existed before the introduction of the `norm="ortho"` keyword and is
 now a very thin wrapper around Numpy or pyFFTW (maybe others in the future),
