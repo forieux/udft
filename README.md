@@ -20,7 +20,7 @@ francois.orieux AT l2s.centralesupelec.fr
 
 ## Installation and documentation
 
-UDFT is just the file `udft.py` and depends on `numpy` and Python 3.7 only. We
+UDFT is just the file `udft.py` and depends on `numpy` and Python 3.7 only. I
 recommend using poetry for installation
 
 ```
