@@ -24,7 +24,7 @@ UDFT is just the file `udft.py` and depends on `numpy` and Python 3.7 only. We
 recommend using poetry for installation
 
 ```
-   poetry add qmm
+   poetry add udft
 ```
 
 but the package is available with pip also. For a quick and dirty installation,
@@ -34,4 +34,4 @@ unlikely.
 
 ## License
 
-The project is licensed under the DO WHAT THE FUCK YOU WANT license.
+The code is in the public domain.
