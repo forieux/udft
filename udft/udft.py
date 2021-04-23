@@ -102,7 +102,7 @@ __all__ = [
 
 
 def dftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
-    """ND unitary discrete Fourier transform
+    """ND unitary discrete Fourier transform.
 
     Parameters
     ----------
@@ -135,7 +135,7 @@ def dftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
 
 
 def idftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
-    """ND unitary inverse discrete Fourier transform
+    """ND unitary inverse discrete Fourier transform.
 
     Parameters
     ----------
@@ -167,7 +167,7 @@ def idftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
 
 
 def rdftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
-    """ND real unitary discrete Fourier transform
+    """ND real unitary discrete Fourier transform.
 
     Consider the Hermitian property of output with real input.
 
@@ -202,7 +202,7 @@ def rdftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
 
 
 def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
-    """ND real unitary inverse discrete Fourier transform
+    """ND real unitary inverse discrete Fourier transform.
 
     Consider the Hermitian property of input and return real values.
 
@@ -234,7 +234,7 @@ def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
 
 
 def dft2(inarray: array, lib: OptStr = None) -> array:
-    """2D unitary discrete Fourier transform
+    """2D unitary discrete Fourier transform.
 
     Compute the unitary discrete Fourier transform on the last 2 axes.
 
@@ -255,7 +255,7 @@ def dft2(inarray: array, lib: OptStr = None) -> array:
 
 
 def idft2(inarray: array, lib: OptStr = None) -> array:
-    """2D unitary inverse discrete Fourier transform
+    """2D unitary inverse discrete Fourier transform.
 
     Compute the unitary IDFT on the last 2 axes.
 
@@ -276,7 +276,7 @@ def idft2(inarray: array, lib: OptStr = None) -> array:
 
 
 def rdft(inarray: array, lib: OptStr = None) -> array:
-    """1D real unitary discrete Fourier transform
+    """1D real unitary discrete Fourier transform.
 
     Compute the unitary real DFT on the last axes. Consider the Hermitian
     property when the input is real.
@@ -298,7 +298,7 @@ def rdft(inarray: array, lib: OptStr = None) -> array:
 
 
 def rdft2(inarray: array, lib: OptStr = None) -> array:
-    """2D real unitary discrete Fourier transform
+    """2D real unitary discrete Fourier transform.
 
     Compute the unitary real DFT on the last 2 axes. Consider the Hermitian
     property when the input is real.
@@ -321,7 +321,7 @@ def rdft2(inarray: array, lib: OptStr = None) -> array:
 
 
 def norm(inarray: array, real: bool = True) -> float:
-    """Return l2-norm of array in discrete Fourier space
+    """Return l2-norm of array in discrete Fourier space.
 
     Parameters
     ----------
@@ -344,7 +344,7 @@ def norm(inarray: array, real: bool = True) -> float:
 
 
 def crandn(shape: Tuple[int, ...]) -> array:
-    """Draw from white complex Normal
+    """Draw from white complex Normal.
 
     Draw unitary DFT of real white Gaussian field of zero mean and variance
     unity. Does not consider hermitian property, `shape` is supposed to consider
@@ -361,7 +361,7 @@ def ir2fr(
     origin: Optional[Sequence[int]] = None,
     real: bool = True,
 ) -> array:
-    """Compute the frequency response from impulse responses
+    """Compute the frequency response from impulse responses.
 
     This function makes the necessary correct zero-padding, zero convention,
     correct DFT etc.
@@ -456,7 +456,7 @@ def fr2ir(
     origin: Optional[Sequence[int]] = None,
     real: bool = True,
 ) -> array:
-    """Return the impulse responses from frequency responses
+    """Return the impulse responses from frequency responses.
 
     This function makes the necessary correct zero-padding, zero convention,
     correct DFT etc. to compute the impulse responses from frequency responses.
@@ -516,7 +516,7 @@ def fr2ir(
 
 
 def diff_ir(ndim, axis):
-    """Return the impulse response of first order differences
+    """Return the impulse response of first order differences.
 
     Parameters
     ----------
@@ -539,7 +539,7 @@ def diff_ir(ndim, axis):
 
 
 def laplacian(ndim: int) -> array:
-    """Return the Laplacian impulse response
+    """Return the Laplacian impulse response.
 
     The second-order difference in each axis.
 
