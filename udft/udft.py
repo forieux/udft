@@ -1,4 +1,4 @@
-# UDFT: Unitary Discrete Fourier Transform and related tools
+# UDFT: Unitary Discrete Fourier Transform (and related)
 # Copyright (C) 2021 François Orieux <francois.orieux@universite-paris-saclay.fr>
 
 # This is free and unencumbered software released into the public domain.
