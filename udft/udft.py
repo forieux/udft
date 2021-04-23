@@ -68,7 +68,7 @@ except ImportError:
 
 
 __author__ = "François Orieux"
-__copyright__ = "2011, 2021, F. Orieux <francois.orieux@universite-paris-saclay.fr>"
+__copyright__ = "2021, François Orieux <francois.orieux@universite-paris-saclay.fr>"
 __credits__ = ["François Orieux"]
 __license__ = "Public Domain"
 __version__ = "3.0.1"
