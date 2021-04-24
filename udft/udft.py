@@ -63,7 +63,9 @@ try:
     pyfftw.config.NUM_THREADS = mp.cpu_count()
 except ImportError:
     LIB = "numpy"
-    logging.warning("Installation of the pyFFTW package improves performance.")
+    logging.warning(
+        "Installation of the pyFFTW package improves performance. You can do that with `poetry install 'udft[fftw]'.`"
+    )
     import numpy.fft as npfft  # type: ignore
 
 
