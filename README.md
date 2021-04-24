@@ -1,12 +1,13 @@
 # UDFT: Unitary Discrete Fourier Transform (and related)
 
-![licence](https://img.shields.io/github/license/forieux/udft) ![pypi](https://img.shields.io/pypi/v/udft) ![status](https://img.shields.io/pypi/status/udft) ![version](https://img.shields.io/pypi/pyversions/udft)
+![licence](https://img.shields.io/github/license/forieux/udft) ![pypi](https://img.shields.io/pypi/v/udft) ![status](https://img.shields.io/pypi/status/udft) ![version](https://img.shields.io/pypi/pyversions/udft) ![maintained](https://img.shields.io/maintenance/yes/2021)
 
 This module implements unitary discrete Fourier transform, that is orthonormal.
 This module existed before the introduction of the `norm="ortho"` keyword and is
-now a very (very) thin wrapper around Numpy or pyFFTW (maybe others in the
-future), mainly done for my personal usage. There is also functions related to
-Fourier and convolution like `ir2fr`.
+now a very (very) thin wrapper around Numpy or
+[pyFFTW](https://pypi.org/project/pyFFTW/) (maybe others in the future), mainly
+done for my personal usage. There is also functions related to Fourier and
+convolution like `ir2fr`.
 
 It is useful for convolution [1]: they respect the Perceval equality, e.g., the
 value of the null frequency is equal to `1/√N * ∑ₙ xₙ`.
@@ -32,8 +33,7 @@ or
 ```
    poetry add udft[fftw]
 ```
-to install the pyFFTW also (recommended), but the package is available with pip
-also. For a quick and dirty installation, just copy the `udft.py` file: it is
+to install the [pyFFTW](https://pypi.org/project/pyFFTW/) also (recommended), but the package is available with pip also. For a quick and dirty installation, just copy the `udft.py` file: it is
 quite stable, follow the [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html), and major changes are
 unlikely.

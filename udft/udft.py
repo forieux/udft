@@ -87,10 +87,12 @@ OptInt = Optional[int]
 __all__ = [
     "dftn",
     "idftn",
-    "rdftn",
-    "irdftn",
+    "dft",
+    "idft",
     "dft2",
     "idft2",
+    "rdftn",
+    "irdftn",
     "rdft",
     "rdft2",
     "norm",
@@ -168,10 +170,95 @@ def idftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
         raise ValueError(f"{lib} is not a valid `lib` value.")
 
 
+def dft(inarray: array, lib: OptStr = None) -> array:
+    """1D unitary discrete Fourier transform.
+
+    Compute the unitary discrete Fourier transform on the last 2 axes.
+
+    Parameters
+    ----------
+    inarray : array-like
+        The array to transform.
+    lib : str, optional
+        Specify the library to compute the Fourier transform. See `LIB` module
+        variable for the default.
+
+    Returns
+    -------
+    outarray : array-like
+        The DFT of `inarray` with same shape.
+    """
+    return dftn(inarray, 1, lib=lib)
+
+
+def idft(inarray: array, lib: OptStr = None) -> array:
+    """1D unitary discrete Fourier transform.
+
+    Compute the unitary discrete Fourier transform on the last 2 axes.
+
+    Parameters
+    ----------
+    inarray : array-like
+        The array to transform.
+    lib : str, optional
+        Specify the library to compute the Fourier transform. See `LIB` module
+        variable for the default.
+
+    Returns
+    -------
+    outarray : array-like
+        The DFT of `inarray` with same shape.
+    """
+    return idftn(inarray, 1, lib=lib)
+
+
+def dft2(inarray: array, lib: OptStr = None) -> array:
+    """2D unitary discrete Fourier transform.
+
+    Compute the unitary discrete Fourier transform on the last 2 axes.
+
+    Parameters
+    ----------
+    inarray : array-like
+        The array to transform.
+    lib : str, optional
+        Specify the library to compute the Fourier transform. See `LIB` module
+        variable for the default.
+
+    Returns
+    -------
+    outarray : array-like
+        The DFT of `inarray` with same shape.
+    """
+    return dftn(inarray, 2, lib=lib)
+
+
+def idft2(inarray: array, lib: OptStr = None) -> array:
+    """2D unitary inverse discrete Fourier transform.
+
+    Compute the unitary IDFT on the last 2 axes.
+
+    Parameters
+    ----------
+    inarray : array-like
+        The array to transform.
+    lib : str, optional
+        Specify the library to compute the Fourier transform. See `LIB` module
+        variable for the default.
+
+    Returns
+    -------
+    outarray : array-like
+        The IDFT of `inarray` with same shape.
+    """
+    return idftn(inarray, 2, lib=lib)
+
+
+# \
 def rdftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
     """ND real unitary discrete Fourier transform.
 
-    Consider the Hermitian property of output with real input.
+    Consider the Hermitian property of output when input has real values.
 
     Parameters
     ----------
@@ -235,53 +322,11 @@ def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
         raise ValueError(f"{lib} is not a valid `lib` value.")
 
 
-def dft2(inarray: array, lib: OptStr = None) -> array:
-    """2D unitary discrete Fourier transform.
-
-    Compute the unitary discrete Fourier transform on the last 2 axes.
-
-    Parameters
-    ----------
-    inarray : array-like
-        The array to transform.
-    lib : str, optional
-        Specify the library to compute the Fourier transform. See `LIB` module
-        variable for the default.
-
-    Returns
-    -------
-    outarray : array-like
-        The DFT of `inarray` with same shape.
-    """
-    return dftn(inarray, 2, lib=lib)
-
-
-def idft2(inarray: array, lib: OptStr = None) -> array:
-    """2D unitary inverse discrete Fourier transform.
-
-    Compute the unitary IDFT on the last 2 axes.
-
-    Parameters
-    ----------
-    inarray : array-like
-        The array to transform.
-    lib : str, optional
-        Specify the library to compute the Fourier transform. See `LIB` module
-        variable for the default.
-
-    Returns
-    -------
-    outarray : array-like
-        The IDFT of `inarray` with same shape.
-    """
-    return idftn(inarray, 2, lib=lib)
-
-
 def rdft(inarray: array, lib: OptStr = None) -> array:
     """1D real unitary discrete Fourier transform.
 
-    Compute the unitary real DFT on the last axes. Consider the Hermitian
-    property when the input is real.
+    Compute the unitary real DFT on the last axis. Consider the Hermitian
+    property of output when input has real values.
 
     Parameters
     ----------
@@ -295,6 +340,7 @@ def rdft(inarray: array, lib: OptStr = None) -> array:
     -------
     outarray : array-like
         The real DFT of `inarray`, where the last dim as length N//2+1.
+
     """
     return rdftn(inarray, 1, lib=lib)
 
@@ -303,7 +349,7 @@ def rdft2(inarray: array, lib: OptStr = None) -> array:
     """2D real unitary discrete Fourier transform.
 
     Compute the unitary real DFT on the last 2 axes. Consider the Hermitian
-    property when the input is real.
+    property of output when input has real values.
 
     Parameters
     ----------
@@ -322,39 +368,7 @@ def rdft2(inarray: array, lib: OptStr = None) -> array:
     return rdftn(inarray, 2, lib=lib)
 
 
-def norm(inarray: array, real: bool = True) -> float:
-    """Return l2-norm of array in discrete Fourier space.
-
-    Parameters
-    ----------
-    inarray : array-like
-        The input array.
-    real : boolean, optional
-        If True, `array` is supposed to contain half of the frequency plane.
-    lib : str, optional
-        Specify the library to compute the Fourier transform. See `LIB` module
-        variable for the default.
-
-    Returns
-    -------
-    norm : float
-
-    """
-    if real:
-        return 2 * np.sum(np.abs(inarray) ** 2) - np.sum(np.abs(inarray[..., 0]) ** 2)
-    return np.sum(np.abs(inarray) ** 2)
-
-
-def crandn(shape: Tuple[int, ...]) -> array:
-    """Draw from white complex Normal.
-
-    Draw unitary DFT of real white Gaussian field of zero mean and variance
-    unity. Does not consider hermitian property, `shape` is supposed to consider
-    half of the frequency plane already.
-    """
-    return np.sqrt(0.5) * (
-        np.random.standard_normal(shape) + 1j * np.random.standard_normal(shape)
-    )
+# \
 
 
 def ir2fr(
@@ -387,7 +401,7 @@ def ir2fr(
 
     Returns
     -------
-    y : array-like
+    out : array-like
       The frequency responses of shape `shape` on the last `len(shape)`
       dimensions.
 
@@ -482,7 +496,7 @@ def fr2ir(
 
     Returns
     -------
-    y : array-like
+    out : array-like
        The impulse responses of shape `shape` on the last `len(shape)` axes.
 
     Notes
@@ -517,6 +531,9 @@ def fr2ir(
     return np.ascontiguousarray(irpadded[tuple([slice(0, s) for s in shape])])
 
 
+# \
+
+
 def diff_ir(ndim, axis):
     """Return the impulse response of first order differences.
 
@@ -543,7 +560,7 @@ def diff_ir(ndim, axis):
 def laplacian(ndim: int) -> array:
     """Return the Laplacian impulse response.
 
-    The second-order difference in each axis.
+    The second-order difference in each axes.
 
     Parameters
     ----------
@@ -565,3 +582,41 @@ def laplacian(ndim: int) -> array:
         )
     imp[tuple([slice(1, 2)] * ndim)] = 2.0 * ndim
     return imp
+
+
+# \
+
+
+def norm(inarray: array, hermitian: bool = True) -> float:
+    """Return l2-norm of array in discrete Fourier space.
+
+    Parameters
+    ----------
+    inarray : array-like
+        The input array.
+    hermitian : boolean, optional
+        If True, `array` is supposed to contain half of the frequency plane.
+    lib : str, optional
+        Specify the library to compute the Fourier transform. See `LIB` module
+        variable for the default.
+
+    Returns
+    -------
+    norm : float
+
+    """
+    if hermitian:
+        return 2 * np.sum(np.abs(inarray) ** 2) - np.sum(np.abs(inarray[..., 0]) ** 2)
+    return np.sum(np.abs(inarray) ** 2)
+
+
+def crandn(shape: Tuple[int, ...]) -> array:
+    """Draw from white complex Normal.
+
+    Draw unitary DFT of real white Gaussian field of zero mean and variance
+    unity. Does not consider hermitian property, `shape` is supposed to consider
+    half of the frequency plane already.
+    """
+    return np.sqrt(0.5) * (
+        np.random.standard_normal(shape) + 1j * np.random.standard_normal(shape)
+    )
