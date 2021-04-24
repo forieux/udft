@@ -41,32 +41,27 @@ equal to
 -- ∑ₙ xₙ.
 √N
 
-If the pyFFTW module is present, his functions are used.
-
 The transforms are always applied on the last axes for performances (C-order
 array). For more flexible usage, you must use the numpy.fft functions directly.
 
 """
 
 import logging
-import multiprocessing as mp
 from typing import Optional, Sequence, Tuple
 
 import numpy as np  # type: ignore
 import numpy.fft as npfft  # type: ignore
 from numpy import ndarray as array
 
+LIB = "numpy"
+
 try:
     import pyfftw  # type: ignore
     import pyfftw.interfaces.numpy_fft as fftw  # type: ignore
 
-    LIB = "fftw"
-    pyfftw.config.NUM_THREADS = mp.cpu_count()
+    pyfftw.config.NUM_THREADS = 4
 except ImportError:
-    LIB = "numpy"
-    logging.warning(
-        "Installation of the pyFFTW package improves performance. You can do that with `poetry install 'udft[fftw]'.`"
-    )
+    pass
 
 
 __author__ = "François Orieux"

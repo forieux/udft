@@ -62,8 +62,8 @@ recommend using poetry for installation
 
    poetry add udft
 
-For better performance `pyFFTW <https://pypi.org/project/pyFFTW/>`_ is optional
-and installable with
+For potential better performance, `pyFFTW <https://pypi.org/project/pyFFTW/>`_
+is optional and installable with
 
 .. code-block:: sh
 
