@@ -2,7 +2,7 @@
  UDFT: Unitary Discrete Fourier Transform (and related)
 ========================================================
 
-|licence| |pypi| |status| |version| |maintained|
+|licence| |pypi| |status| |version| |maintained| |docs|
 
 .. |licence| image:: https://img.shields.io/github/license/forieux/udft
    :alt: Documentation Status
@@ -37,7 +37,7 @@ is equal to
 
 .. math::
 
-   X_0 = \frac{1}{\sqrt{N}} \sum_{n=0}^{N-1} x_n, \quad \text{ and } \quad x_0 = \frac{1}{\sqrt{N}} \sum_{n'=0}^{N-1} X_{n'} .
+   X_0 = \frac{1}{\sqrt{N}} \sum_{n=0}^{N-1} x_n, \text{ and } \quad x_0 = \frac{1}{\sqrt{N}} \sum_{n'=0}^{N-1} X_{n'}.
 
 
 ::
