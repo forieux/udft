@@ -37,7 +37,7 @@ is equal to
 
 .. math::
 
-   X_0 = \frac{1}{\sqrt{N}} \sum_{n=0}^{N-1} x_n, \text{ and } \quad x_0 = \frac{1}{\sqrt{N}} \sum_{n'=0}^{N-1} X_{n'}.
+   X_0 = \frac{1}{\sqrt{N}} \sum_{n=0}^{N-1} x_n, \text{ and } x_0 = \frac{1}{\sqrt{N}} \sum_{n'=0}^{N-1} X_{n'}.
 
 
 ::
