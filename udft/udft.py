@@ -53,6 +53,7 @@ import multiprocessing as mp
 from typing import Optional, Sequence, Tuple
 
 import numpy as np  # type: ignore
+import numpy.fft as npfft  # type: ignore
 from numpy import ndarray as array
 
 try:
@@ -66,7 +67,6 @@ except ImportError:
     logging.warning(
         "Installation of the pyFFTW package improves performance. You can do that with `poetry install 'udft[fftw]'.`"
     )
-    import numpy.fft as npfft  # type: ignore
 
 
 __author__ = "François Orieux"
@@ -620,3 +620,8 @@ def crandn(shape: Tuple[int, ...]) -> array:
     return np.sqrt(0.5) * (
         np.random.standard_normal(shape) + 1j * np.random.standard_normal(shape)
     )
+
+
+### Local Variables:
+### ispell-local-dictionary: "english"
+### End:
