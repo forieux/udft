@@ -34,7 +34,7 @@ or
 ```
    poetry add udft[fftw]
 ```
-to install the [pyFFTW](https://pypi.org/project/pyFFTW/) also (recommended), but the package is available with pip also. For a quick and dirty installation, just copy the `udft.py` file: it is
+to install the [pyFFTW](https://pypi.org/project/pyFFTW/) also, but the package is available with pip also. For a quick and dirty installation, just copy the `udft.py` file: it is
 quite stable, follow the [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html), and major changes are
 unlikely.

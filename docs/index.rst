@@ -19,12 +19,10 @@
 .. |maintained| image:: https://img.shields.io/maintenance/yes/2021
    :alt: Maintained
 
-
-..
-   .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
-       :alt: Documentation Status
-       :scale: 100%
-       :target: https://docs.readthedocs.io/en/latest/?badge=latest
+.. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
+   :alt: Documentation Status
+   :scale: 100%
+   :target: https://docs.readthedocs.io/en/latest/?badge=latest
 
 This module implements unitary discrete Fourier transform, that is orthonormal.
 This module existed before the introduction of the ``norm="ortho"`` keyword and
@@ -39,7 +37,7 @@ is equal to
 
 .. math::
 
-   X_0 = \frac{1}{\sqrt{N}} \sum_{n=0}^{N-1} x_n, \qquad \text{ and } \qquad x_0 = \frac{1}{\sqrt{N}} \sum_{n'=0}^{N-1} X_{n'} .
+   X_0 = \frac{1}{\sqrt{N}} \sum_{n=0}^{N-1} x_n, \quad \text{ and } \quad x_0 = \frac{1}{\sqrt{N}} \sum_{n'=0}^{N-1} X_{n'} .
 
 
 ::
