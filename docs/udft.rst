@@ -3,20 +3,20 @@
 The ``LIB`` module variable
 ---------------------------
 
-The ``LIB`` variable is a string set at import time. If `pyFFTW
-<https://pypi.org/project/pyFFTW/>`_ is installed, this library is used by
-default and ``LIB`` has the value ``"ffwt"``. Otherwise ``numpy`` is used and
-``LIB`` takes the value ``"numpy"``.
+The ``LIB`` variable specifies the default library to use by the module. The Numpy
+library is used by default with ``LIB`` sets to ``"numpy"``. Possible values are
 
-The variable can be change globally
+- ``"numpy"`` to use Numpy, or
+- ``"fftw"`` to use `pyFFTW <https://pypi.org/project/pyFFTW/>`_, if installed.
+
+The variable can be changed globally
 
 .. code-block:: python
 
    udft.LIB = "numpy"
 
 In addition, each function has a parameter to change the library used at call
-time. The accepted values are ``"fftw"`` and ``"numpy"``, a ``ValueError`` is
-raided otherwise.
+time. A ``ValueError`` is raided if the value is not recognized.
 
 Discrete Fourier Transform
 --------------------------
@@ -37,7 +37,7 @@ Real Discrete Fourier Transform
 -------------------------------
 
 The transform here suppose input of real values. In direct transform, the last
-transformed axis has lenght ``N // 2 + 1``. For inverse transform, the shape
+transformed axis has length ``N // 2 + 1``. For inverse transform, the shape
 must be provided.
 
 .. autofunction:: rdftn
