@@ -46,7 +46,6 @@ array). For more flexible usage, you must use the numpy.fft functions directly.
 
 """
 
-import logging
 from typing import Optional, Sequence, Tuple
 
 import numpy as np  # type: ignore
@@ -548,7 +547,7 @@ def diff_ir(ndim, axis):
     assert axis < ndim, "The `axe` argument must be inferior to `ndim`."
 
     return np.reshape(
-        np.array([0, -1, 1], ndmin=ndim), [1] * axe + [3] + [1] * (ndim - axe - 1)
+        np.array([0, -1, 1], ndmin=ndim), [1] * axis + [3] + [1] * (ndim - axis - 1)
     )
 
 

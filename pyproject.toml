@@ -37,6 +37,9 @@ fftw = ["pyFFTW"]
 [tool.poetry.dev-dependencies]
 ipython = "^7.22.0"
 bump2version = "^1.0.1"
+mypy = "^0.812"
+pylint = "^2.8.2"
+flake8 = "^3.9.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
