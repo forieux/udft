@@ -188,7 +188,7 @@ def dft(inarray: array, lib: OptStr = None) -> array:
 def idft(inarray: array, lib: OptStr = None) -> array:
     """1D unitary discrete Fourier transform.
 
-    Compute the unitary discrete Fourier transform on the last 2 axes.
+    Compute the unitary discrete Fourier transform on the last axis.
 
     Parameters
     ----------
@@ -333,7 +333,7 @@ def rdft(inarray: array, lib: OptStr = None) -> array:
     Returns
     -------
     outarray : array-like
-        The real DFT of `inarray`, where the last dim as length N//2+1.
+        The real DFT of `inarray`, where the last dim has length N//2+1.
 
     """
     return rdftn(inarray, 1, lib=lib)
@@ -356,7 +356,7 @@ def rdft2(inarray: array, lib: OptStr = None) -> array:
     Returns
     -------
     outarray : array-like
-        The real DFT of `inarray`, where the last dim as length N//2+1.
+        The real DFT of `inarray`, where the last dim has length N//2+1.
 
     """
     return rdftn(inarray, 2, lib=lib)
@@ -402,7 +402,7 @@ def ir2fr(
     Notes
     -----
     - The output is returned as C-contiguous array.
-    - For convolution, the result has to be used with unitary discrete Fourier
+    - For convolution, the result must be used with unitary discrete Fourier
       transform for the signal (udftn or equivalent).
     """
     if len(shape) > imp_resp.ndim:
