@@ -292,7 +292,7 @@ def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
     Parameters
     ----------
     inarray : array-like
-        The array to transform of complex values.
+        The array of complex values to transform.
     shape : tuple of int
         The output shape of the `len(shape)` last axes.
     lib : str, optional
@@ -302,7 +302,7 @@ def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
     Returns
     -------
     outarray : array-like
-        The real DFT of `inarray`.
+        The real IDFT of `inarray`.
 
     """
     if lib is None:
