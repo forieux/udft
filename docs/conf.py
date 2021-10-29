@@ -30,7 +30,7 @@ author = "François Orieux"
 # The short X.Y version
 version = "3.0"
 # The full version, including alpha/beta/rc tags
-release = "3.2.1"
+release = "3.3.0"
 
 
 # -- General configuration ---------------------------------------------------
