@@ -23,7 +23,7 @@ francois.orieux AT l2s.centralesupelec.fr
 
 ## Installation and documentation
 
-UDFT is just the file `udft.py` and depends on `numpy` and Python 3.7 only.
+UDFT is just the file `udft.py` and depends on `numpy` and Python 3.7+ only.
 Documentation is [here](https://udft.readthedocs.io/en/stable/index.html). I
 recommend using poetry for installation
 
@@ -38,6 +38,8 @@ to install the [pyFFTW](https://pypi.org/project/pyFFTW/) also, but the package 
 quite stable, follow the [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html), and major changes are
 unlikely.
+
+The code is hosted on [GitHub](https://github.com/forieux/udft).
 
 ## License
 
