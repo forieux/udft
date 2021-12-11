@@ -89,7 +89,7 @@ __all__ = [
     "irdftn",
     "rdft",
     "rdft2",
-    "norm",
+    "hnorm",
     "crandn",
     "ir2fr",
     "fr2ir",
@@ -126,10 +126,9 @@ def dftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
 
     if lib == "fftw":
         return fftw.fftn(inarray, axes=range(-ndim, 0), norm="ortho")
-    elif lib == "numpy":
+    if lib == "numpy":
         return npfft.fftn(inarray, axes=range(-ndim, 0), norm="ortho")
-    else:
-        raise ValueError(f"{lib} is not a valid `lib` value.")
+    raise ValueError(f"{lib} is not a valid `lib` value.")
 
 
 def idftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
@@ -158,16 +157,15 @@ def idftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
 
     if lib == "fftw":
         return fftw.ifftn(inarray, axes=range(-ndim, 0), norm="ortho")
-    elif lib == "numpy":
+    if lib == "numpy":
         return npfft.ifftn(inarray, axes=range(-ndim, 0), norm="ortho")
-    else:
-        raise ValueError(f"{lib} is not a valid `lib` value.")
+    raise ValueError(f"{lib} is not a valid `lib` value.")
 
 
 def dft(inarray: array, lib: OptStr = None) -> array:
     """1D unitary discrete Fourier transform.
 
-    Compute the unitary discrete Fourier transform on the last 2 axes.
+    Compute the unitary DFT on the last axis.
 
     Parameters
     ----------
@@ -186,9 +184,9 @@ def dft(inarray: array, lib: OptStr = None) -> array:
 
 
 def idft(inarray: array, lib: OptStr = None) -> array:
-    """1D unitary discrete Fourier transform.
+    """1D unitary inverse discrete Fourier transform.
 
-    Compute the unitary discrete Fourier transform on the last axis.
+    Compute the unitary inverse DFT transform on the last axis.
 
     Parameters
     ----------
@@ -209,7 +207,7 @@ def idft(inarray: array, lib: OptStr = None) -> array:
 def dft2(inarray: array, lib: OptStr = None) -> array:
     """2D unitary discrete Fourier transform.
 
-    Compute the unitary discrete Fourier transform on the last 2 axes.
+    Compute the unitary DFT on the last 2 axes.
 
     Parameters
     ----------
@@ -252,7 +250,7 @@ def idft2(inarray: array, lib: OptStr = None) -> array:
 def rdftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
     """ND real unitary discrete Fourier transform.
 
-    Consider the Hermitian property of output when input has real values.
+    Consider the Hermitian property of output with input having real values.
 
     Parameters
     ----------
@@ -278,10 +276,9 @@ def rdftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
 
     if lib == "fftw":
         return fftw.rfftn(inarray, axes=range(-ndim, 0), norm="ortho")
-    elif lib == "numpy":
+    if lib == "numpy":
         return npfft.rfftn(inarray, axes=range(-ndim, 0), norm="ortho")
-    else:
-        raise ValueError(f"{lib} is not a valid `lib` value.")
+    raise ValueError(f"{lib} is not a valid `lib` value.")
 
 
 def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
@@ -294,7 +291,8 @@ def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
     inarray : array-like
         The array of complex values to transform.
     shape : tuple of int
-        The output shape of the `len(shape)` last axes.
+        The output shape of the `len(shape)` last axes. The transform is applied
+        on the `n=len(shape)` axes.
     lib : str, optional
         Specify the library to compute the Fourier transform. See `LIB` module
         variable for the default.
@@ -310,17 +308,16 @@ def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
 
     if lib == "fftw":
         return fftw.irfftn(inarray, s=shape, axes=range(-len(shape), 0), norm="ortho")
-    elif lib == "numpy":
+    if lib == "numpy":
         return npfft.irfftn(inarray, s=shape, axes=range(-len(shape), 0), norm="ortho")
-    else:
-        raise ValueError(f"{lib} is not a valid `lib` value.")
+    raise ValueError(f"{lib} is not a valid `lib` value.")
 
 
 def rdft(inarray: array, lib: OptStr = None) -> array:
     """1D real unitary discrete Fourier transform.
 
     Compute the unitary real DFT on the last axis. Consider the Hermitian
-    property of output when input has real values.
+    property of output with input having real values.
 
     Parameters
     ----------
@@ -376,8 +373,8 @@ def ir2fr(
     This function makes the necessary correct zero-padding, zero convention,
     correct DFT etc.
 
-    The Fourier transform is performed on the last `len(shape)` dimensions for
-    efficiency (C-order array). Use numpy implementation.
+    The DFT is performed on the last `len(shape)` dimensions for efficiency
+    (C-order array). Use numpy implementation.
 
     Parameters
     ----------
@@ -388,22 +385,23 @@ def ir2fr(
         responses, without hermitian property. The DFT is performed on the
         `len(shape)` last axes of ndarray.
     origin : tuple of int, optional
-        The index of the origin (0, 0) of the impulse response. The center by
-        default (shape[i] // 2).
+        The index of the origin (0 coordinate) of the impulse response. The
+        center of the array by default (`shape[i] // 2`).
     real : boolean, optional
-        If True, `imp_resp` is supposed real, and read DFT is used.
+        If True, `imp_resp` is supposed real, and real DFT is used.
 
     Returns
     -------
     out : array-like
       The frequency responses of shape `shape` on the last `len(shape)`
-      dimensions.
+      dimensions. If `real` is `True`, the last dimension as lenght `N//2+1`.
 
     Notes
     -----
     - The output is returned as C-contiguous array.
     - For convolution, the result must be used with unitary discrete Fourier
-      transform for the signal (udftn or equivalent).
+      transform for the signal (`udftn` or equivalent).
+
     """
     if len(shape) > imp_resp.ndim:
         raise ValueError(
@@ -474,7 +472,7 @@ def fr2ir(
     The IR array is supposed to have the origin in the middle of the array.
 
     The Fourier transform is performed on the last `len(shape)` dimensions for
-    efficiency (C-order array). Use numpy implementation.
+    efficiency (C-order array). Use `np.fft`.
 
     Parameters
     ----------
@@ -522,7 +520,7 @@ def fr2ir(
     for axe, shift in enumerate(origin):
         irpadded = np.roll(irpadded, shift, freq_resp.ndim - len(shape) + axe)
 
-    return np.ascontiguousarray(irpadded[tuple([slice(0, s) for s in shape])])
+    return np.ascontiguousarray(irpadded[tuple(slice(0, s) for s in shape)])
 
 
 # \
@@ -534,9 +532,9 @@ def diff_ir(ndim, axis):
     Parameters
     ----------
     ndim : int
-        The number of dimensions.
+        The number of dimensions on which the convolution must apply.
     axis : int
-        The axis where the diff operates.
+        The axis (dimension) where the diff operates.
 
     Returns
     -------
@@ -581,27 +579,32 @@ def laplacian(ndim: int) -> array:
 # \
 
 
-def norm(inarray: array, hermitian: bool = True) -> float:
-    """Return l2-norm of array in discrete Fourier space.
+def hnorm(inarray: array) -> float:
+    """Hermitian l2-norm of array in discrete Fourier space.
+
+    Compute the l2-norm of complex array
+
+    .. math::
+
+       \|x\|_2 = \sqrt{\sum_{n=1}^{N} |x_n|^2}
+
+    considering the Hermitian property. Must be used with `rdftn`. Equivalent of
+    `np.linalg.norm` for array with full Fourier space (those obtained with
+    `dftn`).
 
     Parameters
     ----------
     inarray : array-like
-        The input array.
-    hermitian : boolean, optional
-        If True, `array` is supposed to contain half of the frequency plane.
-    lib : str, optional
-        Specify the library to compute the Fourier transform. See `LIB` module
-        variable for the default.
+        The input array with half of the Fourier plan.
 
     Returns
     -------
     norm : float
 
     """
-    if hermitian:
-        return 2 * np.sum(np.abs(inarray) ** 2) - np.sum(np.abs(inarray[..., 0]) ** 2)
-    return np.sum(np.abs(inarray) ** 2)
+    return np.sqrt(
+        2 * np.sum(np.abs(inarray) ** 2) - np.sum(np.abs(inarray[..., 0]) ** 2)
+    )
 
 
 def crandn(shape: Tuple[int, ...]) -> array:
