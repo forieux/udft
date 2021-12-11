@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [3.4.0] - 2021-04-24
+
+### Changed
+
+- Change the "norm" to "hnorm" for hermitian norm computation.
+- Various fix.
+
+## [3.2.1] - 2021-04-29
+
+### Changed
+
+Fix diff_ir 'axe' bug.﻿
+
 ## [3.2.0] - 2021-04-24
 
 ### Changed
