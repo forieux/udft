@@ -46,6 +46,7 @@ array). For more flexible usage, you must use the numpy.fft functions directly.
 
 """
 
+import multiprocessing
 from typing import Optional, Sequence, Tuple
 
 import numpy as np  # type: ignore
@@ -55,10 +56,11 @@ from numpy import ndarray as array
 LIB = "numpy"
 
 try:
+    LIB = "fftw"
     import pyfftw  # type: ignore
     import pyfftw.interfaces.numpy_fft as fftw  # type: ignore
 
-    pyfftw.config.NUM_THREADS = 4
+    pyfftw.config.NUM_THREADS = multiprocessing.cpu_count() / 2
 except ImportError:
     pass
 
