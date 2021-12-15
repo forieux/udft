@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+- LIB variable is in the "config" module now.
+
 ## [3.4.0] - 2021-04-24
 
 ### Changed
