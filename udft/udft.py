@@ -56,11 +56,18 @@ from numpy import ndarray as array
 from . import config
 
 try:
-    import pyfftw  # type: ignore
+    import pyfftw
     import pyfftw.interfaces.numpy_fft as fftw  # type: ignore
 
     config.LIB = "fftw"
     pyfftw.config.NUM_THREADS = multiprocessing.cpu_count() / 2
+except ImportError:
+    pass
+
+try:
+    import scipy.fft as spfft  # type: ignore
+
+    config.LIB = "scipy"
 except ImportError:
     pass
 
@@ -111,8 +118,8 @@ def dftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
         The `ndim` last axes along which to compute the transform. All
         axes by default.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `LIB` module
-        variable for the default.
+        Specify the library to compute the Fourier transform. See `config.LIB`
+        module variable for the default.
 
     Returns
     -------
@@ -125,10 +132,12 @@ def dftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
     if lib is None:
         lib = config.LIB
 
-    if lib == "fftw":
-        return fftw.fftn(inarray, axes=range(-ndim, 0), norm="ortho")
     if lib == "numpy":
         return npfft.fftn(inarray, axes=range(-ndim, 0), norm="ortho")
+    if lib == "scipy":
+        return spfft.fftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)
+    if lib == "fftw":
+        return fftw.fftn(inarray, axes=range(-ndim, 0), norm="ortho")
     raise ValueError(f"{lib} is not a valid `lib` value.")
 
 
@@ -143,23 +152,26 @@ def idftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
         The `ndim` last axes along wich to compute the transform. All
         axes by default.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `LIB` module
-        variable for the default.
+        Specify the library to compute the Fourier transform. See `config.LIB`
+        module variable for the default.
 
     Returns
     -------
     outarray : array-like
         The IDFT of `inarray` with same shape.
+
     """
     if ndim is None:
         ndim = inarray.ndim
     if lib is None:
-        lib = LIB
+        lib = config.LIB
 
-    if lib == "fftw":
-        return fftw.ifftn(inarray, axes=range(-ndim, 0), norm="ortho")
     if lib == "numpy":
         return npfft.ifftn(inarray, axes=range(-ndim, 0), norm="ortho")
+    if lib == "scipy":
+        return spfft.ifftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)
+    if lib == "fftw":
+        return fftw.ifftn(inarray, axes=range(-ndim, 0), norm="ortho")
     raise ValueError(f"{lib} is not a valid `lib` value.")
 
 
@@ -173,13 +185,14 @@ def dft(inarray: array, lib: OptStr = None) -> array:
     inarray : array-like
         The array to transform.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `LIB` module
-        variable for the default.
+        Specify the library to compute the Fourier transform. See `config.LIB`
+        module variable for the default.
 
     Returns
     -------
     outarray : array-like
         The DFT of `inarray` with same shape.
+
     """
     return dftn(inarray, 1, lib=lib)
 
@@ -194,13 +207,14 @@ def idft(inarray: array, lib: OptStr = None) -> array:
     inarray : array-like
         The array to transform.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `LIB` module
-        variable for the default.
+        Specify the library to compute the Fourier transform. See `config.LIB`
+        module variable for the default.
 
     Returns
     -------
     outarray : array-like
         The DFT of `inarray` with same shape.
+
     """
     return idftn(inarray, 1, lib=lib)
 
@@ -215,13 +229,14 @@ def dft2(inarray: array, lib: OptStr = None) -> array:
     inarray : array-like
         The array to transform.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `LIB` module
-        variable for the default.
+        Specify the library to compute the Fourier transform. See `config.LIB`
+        module variable for the default.
 
     Returns
     -------
     outarray : array-like
         The DFT of `inarray` with same shape.
+
     """
     return dftn(inarray, 2, lib=lib)
 
@@ -236,13 +251,14 @@ def idft2(inarray: array, lib: OptStr = None) -> array:
     inarray : array-like
         The array to transform.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `LIB` module
-        variable for the default.
+        Specify the library to compute the Fourier transform. See `config.LIB`
+        module variable for the default.
 
     Returns
     -------
     outarray : array-like
         The IDFT of `inarray` with same shape.
+
     """
     return idftn(inarray, 2, lib=lib)
 
@@ -261,8 +277,8 @@ def rdftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
         The `ndim` last axes along which to compute the transform. All
         axes by default.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `LIB` module
-        variable for the default.
+        Specify the library to compute the Fourier transform. See `config.LIB`
+        module variable for the default.
 
     Returns
     -------
@@ -273,12 +289,14 @@ def rdftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
     if ndim is None:
         ndim = inarray.ndim
     if lib is None:
-        lib = LIB
+        lib = config.LIB
 
-    if lib == "fftw":
-        return fftw.rfftn(inarray, axes=range(-ndim, 0), norm="ortho")
     if lib == "numpy":
         return npfft.rfftn(inarray, axes=range(-ndim, 0), norm="ortho")
+    if lib == "scipy":
+        return spfft.rfftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)
+    if lib == "fftw":
+        return fftw.rfftn(inarray, axes=range(-ndim, 0), norm="ortho")
     raise ValueError(f"{lib} is not a valid `lib` value.")
 
 
@@ -295,8 +313,8 @@ def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
         The output shape of the `len(shape)` last axes. The transform is applied
         on the `n=len(shape)` axes.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `LIB` module
-        variable for the default.
+        Specify the library to compute the Fourier transform. See `config.LIB`
+        module variable for the default.
 
     Returns
     -------
@@ -305,12 +323,16 @@ def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
 
     """
     if lib is None:
-        lib = LIB
+        lib = config.LIB
 
-    if lib == "fftw":
-        return fftw.irfftn(inarray, s=shape, axes=range(-len(shape), 0), norm="ortho")
     if lib == "numpy":
         return npfft.irfftn(inarray, s=shape, axes=range(-len(shape), 0), norm="ortho")
+    if lib == "scipy":
+        return spfft.irfftn(
+            inarray, s=shape, axes=range(-len(shape), 0), norm="ortho", workers=-1
+        )
+    if lib == "fftw":
+        return fftw.irfftn(inarray, s=shape, axes=range(-len(shape), 0), norm="ortho")
     raise ValueError(f"{lib} is not a valid `lib` value.")
 
 
@@ -325,8 +347,8 @@ def rdft(inarray: array, lib: OptStr = None) -> array:
     inarray : array-like
         The array to transform.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `LIB` module
-        variable for the default.
+        Specify the library to compute the Fourier transform. See `config.LIB`
+        module variable for the default.
 
     Returns
     -------
@@ -348,8 +370,8 @@ def rdft2(inarray: array, lib: OptStr = None) -> array:
     inarray : array-like
         The array to transform.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `LIB` module
-        variable for the default.
+        Specify the library to compute the Fourier transform. See `config.LIB`
+        module variable for the default.
 
     Returns
     -------
@@ -428,7 +450,7 @@ def ir2fr(
     # │                       │
     # └───────────────────────┘
     irpadded = np.zeros(imp_resp.shape[: -len(shape)] + shape)  # zeros of target shape
-    irpadded[tuple([slice(0, s) for s in imp_resp.shape])] = imp_resp
+    irpadded[tuple(slice(0, s) for s in imp_resp.shape)] = imp_resp
 
     # Roll (circshift in Matlab) to move the origin at index 0 (DFT hypothesis)
     # ┌────────┬──────────────┐     ┌────┬─────────────┬────┐
