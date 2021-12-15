@@ -53,13 +53,13 @@ import numpy as np  # type: ignore
 import numpy.fft as npfft  # type: ignore
 from numpy import ndarray as array
 
-LIB = "numpy"
+from . import config
 
 try:
-    LIB = "fftw"
     import pyfftw  # type: ignore
     import pyfftw.interfaces.numpy_fft as fftw  # type: ignore
 
+    config.LIB = "fftw"
     pyfftw.config.NUM_THREADS = multiprocessing.cpu_count() / 2
 except ImportError:
     pass
@@ -97,7 +97,6 @@ __all__ = [
     "fr2ir",
     "diff_ir",
     "laplacian",
-    "LIB",
 ]
 
 
@@ -124,7 +123,7 @@ def dftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
     if ndim is None:
         ndim = inarray.ndim
     if lib is None:
-        lib = LIB
+        lib = config.LIB
 
     if lib == "fftw":
         return fftw.fftn(inarray, axes=range(-ndim, 0), norm="ortho")
