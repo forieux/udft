@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+- Add scipy and activate parallelization by default.
+
+### Changed
 - LIB variable is in the "config" module now.
 
 ## [3.4.0] - 2021-04-24
