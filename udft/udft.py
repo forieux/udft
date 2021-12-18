@@ -564,8 +564,10 @@ def diff_ir(ndim, axis):
     out : array_like
         The impulse response
     """
-    assert ndim > 0, "The number of dimensions `ndim` must be strictly positive."
-    assert axis < ndim, "The `axe` argument must be inferior to `ndim`."
+    if ndim <= 0:
+        raise ValueError("The number of dimensions `ndim` must be strictly positive.")
+    if axis >= ndim:
+        raise ValueError("The `axe` argument must be inferior to `ndim`.")
 
     return np.reshape(
         np.array([0, -1, 1], ndmin=ndim), [1] * axis + [3] + [1] * (ndim - axis - 1)
