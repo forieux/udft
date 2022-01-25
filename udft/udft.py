@@ -132,6 +132,9 @@ def dftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
     if lib is None:
         lib = config.LIB
 
+    if ndim < 1 or ndim > inarray.ndim:
+        raise ValueError("`ndim` must be >= 1.")
+
     if lib == "numpy":
         return npfft.fftn(inarray, axes=range(-ndim, 0), norm="ortho")
     if lib == "scipy":
@@ -165,6 +168,9 @@ def idftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
         ndim = inarray.ndim
     if lib is None:
         lib = config.LIB
+
+    if ndim < 1 or ndim > inarray.ndim:
+        raise ValueError("`ndim` must be >= 1.")
 
     if lib == "numpy":
         return npfft.ifftn(inarray, axes=range(-ndim, 0), norm="ortho")
@@ -291,6 +297,9 @@ def rdftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
     if lib is None:
         lib = config.LIB
 
+    if ndim < 1 or ndim > inarray.ndim:
+        raise ValueError("`ndim` must be >= 1.")
+
     if lib == "numpy":
         return npfft.rfftn(inarray, axes=range(-ndim, 0), norm="ortho")
     if lib == "scipy":
@@ -322,6 +331,8 @@ def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
         The real IDFT of `inarray`.
 
     """
+    if len(shape) > inarray.ndim:
+        raise ValueError("`shape` must respect `0 < len(shape) <= inarray.ndim`.")
     if lib is None:
         lib = config.LIB
 
@@ -549,29 +560,30 @@ def fr2ir(
 # \
 
 
-def diff_ir(ndim, axis):
+def diff_ir(ndim=1, axis=0):
     """Return the impulse response of first order differences.
 
     Parameters
     ----------
-    ndim : int
-        The number of dimensions on which the convolution must apply.
-    axis : int
+    ndim : int, optional
+        The number of dimensions of the array on which the diff will apply.
+    axis : int, optional
         The axis (dimension) where the diff operates.
 
     Returns
     -------
     out : array_like
         The impulse response
+
     """
     if ndim <= 0:
-        raise ValueError("The number of dimensions `ndim` must be strictly positive.")
+        raise ValueError("The number of dimensions `ndim` must respect `ndim > 0`.")
     if axis >= ndim:
-        raise ValueError("The `axe` argument must be inferior to `ndim`.")
+        raise ValueError("The `axis` argument must respect `0 <= axis < ndim`.")
 
-    return np.reshape(
-        np.array([0, -1, 1], ndmin=ndim), [1] * axis + [3] + [1] * (ndim - axis - 1)
-    )
+    shape = ndim * [1]
+    shape[axis] = 3
+    return np.reshape(np.array([0, -1, 1], ndmin=ndim), shape)
 
 
 def laplacian(ndim: int) -> array:
@@ -604,8 +616,8 @@ def laplacian(ndim: int) -> array:
 # \
 
 
-def hnorm(inarray: array) -> float:
-    """Hermitian l2-norm of array in discrete Fourier space.
+def hnorm(inarray: array, inshape) -> float:
+    r"""Hermitian l2-norm of array in discrete Fourier space.
 
     Compute the l2-norm of complex array
 
@@ -614,22 +626,27 @@ def hnorm(inarray: array) -> float:
        \|x\|_2 = \sqrt{\sum_{n=1}^{N} |x_n|^2}
 
     considering the Hermitian property. Must be used with `rdftn`. Equivalent of
-    `np.linalg.norm` for array with full Fourier space (those obtained with
-    `dftn`).
+    `np.linalg.norm` for array applied on full Fourier space array (those
+    obtained with `dftn`).
 
     Parameters
     ----------
     inarray : array-like
         The input array with half of the Fourier plan.
 
+    inshape: tuple of int
+        The shape of the original array `oarr` where `inarray=rdft(oarr)`.
+
     Returns
     -------
     norm : float
 
     """
-    return np.sqrt(
-        2 * np.sum(np.abs(inarray) ** 2) - np.sum(np.abs(inarray[..., 0]) ** 2)
-    )
+    norm = 2 * np.sum(np.abs(inarray) ** 2) - np.sum(np.abs(inarray[..., 0]) ** 2)
+    if inshape[-1] % 2 == 0:
+        norm -= np.sum(np.abs(inarray[..., -1]) ** 2)
+
+    return np.sqrt(norm)
 
 
 def crandn(shape: Tuple[int, ...]) -> array:
