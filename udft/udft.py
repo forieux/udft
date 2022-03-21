@@ -439,7 +439,7 @@ def ir2fr(
     """
     if len(shape) > imp_resp.ndim:
         raise ValueError(
-            "length of `shape` must be inferior or equal to `imp_resp.ndim`"
+            f"length ({len(shape)}) of `shape` must be inferior or equal to `imp_resp.ndim` ({imp_resp.ndim})"
         )
 
     if origin is None:
