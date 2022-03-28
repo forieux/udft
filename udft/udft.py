@@ -46,6 +46,7 @@ array). For more flexible usage, you must use the numpy.fft functions directly.
 
 """
 
+import logging
 import multiprocessing
 from typing import Optional, Sequence, Tuple
 
@@ -53,13 +54,13 @@ import numpy as np  # type: ignore
 import numpy.fft as npfft  # type: ignore
 from numpy import ndarray as array
 
-from . import config
+_valid_lib = {"numpy"}
 
 try:
-    import pyfftw
+    import pyfftw  # type: ignore
     import pyfftw.interfaces.numpy_fft as fftw  # type: ignore
 
-    config.LIB = "fftw"
+    _valid_lib.add("fftw")
     pyfftw.config.NUM_THREADS = multiprocessing.cpu_count() / 2
 except ImportError:
     pass
@@ -67,13 +68,15 @@ except ImportError:
 try:
     import scipy.fft as spfft  # type: ignore
 
-    config.LIB = "scipy"
+    _valid_lib.add("scipy")
 except ImportError:
     pass
 
 
 __author__ = "François Orieux"
-__copyright__ = "2021, François Orieux <francois.orieux@universite-paris-saclay.fr>"
+__copyright__ = (
+    "2021, 2022, François Orieux <francois.orieux@universite-paris-saclay.fr>"
+)
 __credits__ = ["François Orieux"]
 __license__ = "Public Domain"
 __version__ = "3.4.0"
@@ -107,6 +110,29 @@ __all__ = [
 ]
 
 
+_lib = "numpy"
+
+
+def set_lib(lib: str):
+    if not lib in _valid_lib:
+        raise ValueError(
+            f"{lib} is not a valid `lib` value. Must be one of {_valid_lib}."
+        )
+    else:
+        _lib = lib
+
+
+def get_lib(lib: str = None) -> str:
+    return _lib
+
+
+# numpy < fftw < scipy
+if "fftw" in _valid_lib:
+    set_lib("fftw")
+if "scipy" in _valid_lib:
+    set_lib("scipy")
+
+
 def dftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
     """ND unitary discrete Fourier transform.
 
@@ -118,8 +144,8 @@ def dftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
         The `ndim` last axes along which to compute the transform. All
         axes by default.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `config.LIB`
-        module variable for the default.
+        Specify the library to compute the Fourier transform. See `set_lib`
+        `get_lib` functions for the default.
 
     Returns
     -------
@@ -130,7 +156,7 @@ def dftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
     if ndim is None:
         ndim = inarray.ndim
     if lib is None:
-        lib = config.LIB
+        lib = get_lib()
 
     if ndim < 1 or ndim > inarray.ndim:
         raise ValueError("`ndim` must be >= 1.")
@@ -155,8 +181,8 @@ def idftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
         The `ndim` last axes along wich to compute the transform. All
         axes by default.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `config.LIB`
-        module variable for the default.
+        Specify the library to compute the Fourier transform. See `set_lib`
+        `get_lib` functions for the default.
 
     Returns
     -------
@@ -167,7 +193,7 @@ def idftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
     if ndim is None:
         ndim = inarray.ndim
     if lib is None:
-        lib = config.LIB
+        lib = get_lib()
 
     if ndim < 1 or ndim > inarray.ndim:
         raise ValueError("`ndim` must be >= 1.")
@@ -191,8 +217,8 @@ def dft(inarray: array, lib: OptStr = None) -> array:
     inarray : array-like
         The array to transform.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `config.LIB`
-        module variable for the default.
+        Specify the library to compute the Fourier transform. See `set_lib`
+        `get_lib` functions for the default.
 
     Returns
     -------
@@ -213,8 +239,8 @@ def idft(inarray: array, lib: OptStr = None) -> array:
     inarray : array-like
         The array to transform.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `config.LIB`
-        module variable for the default.
+        Specify the library to compute the Fourier transform. See `set_lib`
+        `get_lib` functions for the default.
 
     Returns
     -------
@@ -235,8 +261,8 @@ def dft2(inarray: array, lib: OptStr = None) -> array:
     inarray : array-like
         The array to transform.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `config.LIB`
-        module variable for the default.
+        Specify the library to compute the Fourier transform. See `set_lib`
+        `get_lib` functions for the default.
 
     Returns
     -------
@@ -257,8 +283,8 @@ def idft2(inarray: array, lib: OptStr = None) -> array:
     inarray : array-like
         The array to transform.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `config.LIB`
-        module variable for the default.
+        Specify the library to compute the Fourier transform. See `set_lib`
+        `get_lib` functions for the default.
 
     Returns
     -------
@@ -283,8 +309,8 @@ def rdftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
         The `ndim` last axes along which to compute the transform. All
         axes by default.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `config.LIB`
-        module variable for the default.
+        Specify the library to compute the Fourier transform. See `set_lib`
+        `get_lib` functions for the default.
 
     Returns
     -------
@@ -295,7 +321,7 @@ def rdftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
     if ndim is None:
         ndim = inarray.ndim
     if lib is None:
-        lib = config.LIB
+        lib = get_lib()
 
     if ndim < 1 or ndim > inarray.ndim:
         raise ValueError("`ndim` must be >= 1.")
@@ -322,8 +348,8 @@ def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
         The output shape of the `len(shape)` last axes. The transform is applied
         on the `n=len(shape)` axes.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `config.LIB`
-        module variable for the default.
+        Specify the library to compute the Fourier transform. See `set_lib`
+        `get_lib` functions for the default.
 
     Returns
     -------
@@ -334,7 +360,7 @@ def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
     if len(shape) > inarray.ndim:
         raise ValueError("`shape` must respect `0 < len(shape) <= inarray.ndim`.")
     if lib is None:
-        lib = config.LIB
+        lib = get_lib()
 
     if lib == "numpy":
         return npfft.irfftn(inarray, s=shape, axes=range(-len(shape), 0), norm="ortho")
@@ -358,8 +384,8 @@ def rdft(inarray: array, lib: OptStr = None) -> array:
     inarray : array-like
         The array to transform.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `config.LIB`
-        module variable for the default.
+        Specify the library to compute the Fourier transform. See `set_lib`
+        `get_lib` functions for the default.
 
     Returns
     -------
@@ -381,8 +407,8 @@ def rdft2(inarray: array, lib: OptStr = None) -> array:
     inarray : array-like
         The array to transform.
     lib : str, optional
-        Specify the library to compute the Fourier transform. See `config.LIB`
-        module variable for the default.
+        Specify the library to compute the Fourier transform. See `set_lib`
+        `get_lib` functions for the default.
 
     Returns
     -------
@@ -652,9 +678,10 @@ def hnorm(inarray: array, inshape) -> float:
 def crandn(shape: Tuple[int, ...]) -> array:
     """Draw from white complex Normal.
 
-    Draw unitary DFT of real white Gaussian field of zero mean and variance
-    unity. Does not consider hermitian property, `shape` is supposed to consider
-    half of the frequency plane already.
+    Draw unitary DFT of real white Gaussian field of zero mean and unit
+    variance. Does not consider hermitian property, `shape` is supposed to
+    consider half of the frequency plane already.
+
     """
     return np.sqrt(0.5) * (
         np.random.standard_normal(shape) + 1j * np.random.standard_normal(shape)
