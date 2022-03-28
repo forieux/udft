@@ -24,8 +24,10 @@ francois.orieux AT l2s.centralesupelec.fr
 ## Installation and documentation
 
 UDFT is just the file `udft.py` and depends on `numpy` and Python 3.7+ only.
-Documentation is [here](https://udft.readthedocs.io/en/stable/index.html). I
-recommend using poetry for installation
+Optional dependency are [pyFFTW](https://pypi.org/project/pyFFTW/) and
+[scipy](https://scipy.org/). Documentation is
+[here](https://udft.readthedocs.io/en/stable/index.html). I recommend using
+[poetry](https://python-poetry.org/) for installation
 
 ```
    poetry add udft
@@ -34,7 +36,11 @@ or
 ```
    poetry add udft[fftw]
 ```
-to install the [pyFFTW](https://pypi.org/project/pyFFTW/) also, but the package is available with pip also. For a quick and dirty installation, just copy the `udft.py` file: it is
+to install [pyFFTW](https://pypi.org/project/pyFFTW/), or pip
+```
+   pip install udft
+```
+For a quick and dirty installation, just copy the `udft.py` file: it is
 quite stable, follow the [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html), and major changes are
 unlikely.
