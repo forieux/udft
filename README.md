@@ -2,9 +2,9 @@
 
 ![licence](https://img.shields.io/github/license/forieux/udft) ![pypi](https://img.shields.io/pypi/v/udft) ![status](https://img.shields.io/pypi/status/udft) ![version](https://img.shields.io/pypi/pyversions/udft) ![maintained](https://img.shields.io/maintenance/yes/2022) [![Documentation Status](https://readthedocs.org/projects/udft/badge/?version=latest)](https://udft.readthedocs.io/en/latest/?badge=latest)
 
-This module implements unitary discrete Fourier transform, that is orthonormal.
-This module existed before the introduction of the `norm="ortho"` keyword and is
-now a very (very) thin wrapper around Numpy,
+This module implements unitary discrete Fourier transform, that is orthonormal
+`det(F) = 1` and `F⁻¹ = F^*`. This module existed before the introduction of the
+`norm="ortho"` keyword and is now a very (very) thin wrapper around Numpy,
 [pyFFTW](https://pypi.org/project/pyFFTW/), and Scipy (maybe others in the
 future), mainly done for my personal usage. There is also functions related to
 Fourier and convolution like `ir2fr`.
