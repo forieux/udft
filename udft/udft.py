@@ -586,7 +586,7 @@ def fr2ir(
 # \
 
 
-def diff_ir(ndim=1, axis=0):
+def diff_ir(ndim=1, axis=0, norm=False):
     """Return the impulse response of first order differences.
 
     Parameters
@@ -609,10 +609,13 @@ def diff_ir(ndim=1, axis=0):
 
     shape = ndim * [1]
     shape[axis] = 3
-    return np.reshape(np.array([0, -1, 1], ndmin=ndim), shape)
+    if norm:
+        return np.reshape(np.array([0, -1, 1], ndmin=ndim) / 2, shape)
+    else:
+        return np.reshape(np.array([0, -1, 1], ndmin=ndim), shape)
 
 
-def laplacian(ndim: int) -> array:
+def laplacian(ndim: int, norm=False) -> array:
     """Return the Laplacian impulse response.
 
     The second-order difference in each axes.
@@ -636,13 +639,16 @@ def laplacian(ndim: int) -> array:
             [-1 if i == dim else 1 for i in range(ndim)]
         )
     imp[tuple([slice(1, 2)] * ndim)] = 2.0 * ndim
-    return imp
+    if norm:
+        return imp / np.sum(np.abs(imp))
+    else:
+        return imp
 
 
 # \
 
 
-def hnorm(inarray: array, inshape) -> float:
+def hnorm(inarray: array, inshape: Tuple[int]) -> float:
     r"""Hermitian l2-norm of array in discrete Fourier space.
 
     Compute the l2-norm of complex array
