@@ -663,7 +663,7 @@ def hnorm(inarray: array, inshape: Tuple[int]) -> float:
 
     Parameters
     ----------
-    inarray : array-like
+    inarray : array-like of shape (... + inshape)
         The input array with half of the Fourier plan.
 
     inshape: tuple of int
@@ -674,9 +674,13 @@ def hnorm(inarray: array, inshape: Tuple[int]) -> float:
     norm : float
 
     """
-    norm = 2 * np.sum(np.abs(inarray) ** 2) - np.sum(np.abs(inarray[..., 0]) ** 2)
+    axis = tuple(range(-len(inshape), 0))
+    axis2 = tuple(range(-(len(inshape) - 1), 0))
+    norm = 2 * np.sum(np.abs(inarray) ** 2, axis=axis) - np.sum(
+        np.abs(inarray[..., 0]) ** 2, axis=axis2, keepdims=True
+    )
     if inshape[-1] % 2 == 0:
-        norm -= np.sum(np.abs(inarray[..., -1]) ** 2)
+        norm -= np.sum(np.abs(inarray[..., -1]) ** 2, axis=axis2, keepdims=True)
 
     return np.sqrt(norm)
 
