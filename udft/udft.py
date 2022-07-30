@@ -648,7 +648,7 @@ def laplacian(ndim: int, norm=False) -> array:
 # \
 
 
-def hnorm(inarray: array, inshape: Tuple[int]) -> float:
+def hnorm(inarray: array, inshape: Tuple[int]) -> array:
     r"""Hermitian l2-norm of array in discrete Fourier space.
 
     Compute the l2-norm of complex array
