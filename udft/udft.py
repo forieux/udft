@@ -127,8 +127,6 @@ def get_lib(lib: str = None) -> str:
 
 
 # numpy < fftw < scipy
-if "fftw" in _valid_lib:
-    set_lib("fftw")
 if "scipy" in _valid_lib:
     set_lib("scipy")
 
