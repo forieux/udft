@@ -106,6 +106,8 @@ __all__ = [
     "fr2ir",
     "diff_ir",
     "laplacian",
+    "get_lib",
+    "set_lib",
 ]
 
 
