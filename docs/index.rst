@@ -16,7 +16,7 @@
 .. |version| image:: https://img.shields.io/pypi/pyversions/udft
    :alt: Version number
 
-.. |maintained| image:: https://img.shields.io/maintenance/yes/2021
+.. |maintained| image:: https://img.shields.io/maintenance/yes/2022
    :alt: Maintained
 
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
