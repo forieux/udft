@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [3.5.1] - 2022-08-02
+
 ### Changed
 - Fix typing for `hnorm`.
 - Remove `logging` module import
