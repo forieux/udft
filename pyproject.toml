@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "udft"
-version = "3.5.0"
+version = "3.5.1"
 description = "Unitary discrete Fourier Transform (and related)"
 authors = ["François Orieux <francois.orieux@universite-paris-saclay.fr>"]
 maintainers = ["François Orieux <francois.orieux@universite-paris-saclay.fr>"]

@@ -78,7 +78,7 @@ __copyright__ = (
 )
 __credits__ = ["François Orieux"]
 __license__ = "Public Domain"
-__version__ = "3.5.0"
+__version__ = "3.5.1"
 __maintainer__ = "François Orieux"
 __email__ = "francois.orieux@universite-paris-saclay.fr"
 __status__ = "stable"
