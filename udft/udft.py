@@ -1,5 +1,5 @@
 # UDFT: Unitary Discrete Fourier Transform (and related)
-# Copyright (C) 2021 François Orieux <francois.orieux@universite-paris-saclay.fr>
+# Copyright (C) 2021-2022 François Orieux <francois.orieux@universite-paris-saclay.fr>
 
 # This is free and unencumbered software released into the public domain.
 #
@@ -46,7 +46,6 @@ array). For more flexible usage, you must use the numpy.fft functions directly.
 
 """
 
-import logging
 import multiprocessing
 from typing import Optional, Sequence, Tuple
 
@@ -646,7 +645,7 @@ def laplacian(ndim: int, norm=False) -> array:
 # \
 
 
-def hnorm(inarray: array, inshape: Tuple[int]) -> array:
+def hnorm(inarray: array, inshape: Tuple[int, ...]) -> array:
     r"""Hermitian l2-norm of array in discrete Fourier space.
 
     Compute the l2-norm of complex array
@@ -675,7 +674,7 @@ def hnorm(inarray: array, inshape: Tuple[int]) -> array:
     axis = tuple(range(-len(inshape), 0))
     axis2 = tuple(range(-(len(inshape) - 1), 0))
     norm = 2 * np.sum(np.abs(inarray) ** 2, axis=axis) - np.sum(
-        np.abs(inarray[..., 0]) ** 2, axis=axis2, keepdims=True
+        np.abs(inarray[..., 0]) ** 2, axis=axis2
     )
     if inshape[-1] % 2 == 0:
         norm -= np.sum(np.abs(inarray[..., -1]) ** 2, axis=axis2, keepdims=True)
