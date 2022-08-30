@@ -108,14 +108,16 @@ __all__ = [
     "laplacian",
     "get_lib",
     "set_lib",
+    "valid_lib",
 ]
 
 
 _lib = "numpy"
 
 
-def set_lib(lib: str):
-    if not lib in _valid_lib:
+def set_lib(lib: str) -> None:
+    global _lib
+    if lib not in _valid_lib:
         raise ValueError(
             f"{lib} is not a valid `lib` value. Must be one of {_valid_lib}."
         )
@@ -123,8 +125,12 @@ def set_lib(lib: str):
         _lib = lib
 
 
-def get_lib(lib: str = None) -> str:
-    return _lib
+def get_lib() -> str:
+    return str(_lib)
+
+
+def valid_lib() -> str:
+    return str(_valid_lib)
 
 
 # numpy < fftw < scipy
