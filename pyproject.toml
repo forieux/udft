@@ -1,14 +1,15 @@
-[tool.poetry]
+[project]
 name = "udft"
 version = "3.6.1"
 description = "Unitary discrete Fourier Transform (and related)"
-authors = ["François Orieux <francois.orieux@universite-paris-saclay.fr>"]
-maintainers = ["François Orieux <francois.orieux@universite-paris-saclay.fr>"]
 readme = "README.md"
-license = "Public Domain"
-homepage = "https://udft.readthedocs.io/en/stable/"
-documentation = "https://udft.readthedocs.io/en/stable/"
-repository = "https://github.com/forieux/udft/"
+authors = [
+    { name = "François Orieux", email = "francois.orieux@universite-paris-saclay.fr" }
+]
+maintainers = [
+    { name = "François Orieux", email = "francois.orieux@universite-paris-saclay.fr" }
+]
+license = "CC0-1.0"
 keywords = ["fft", "orthonormal"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -20,31 +21,40 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Typing :: Typed",
 ]
-include = ["py.typed", "LICENSE"]
+requires-python = ">=3.12"
+dependencies = [
+    "array-api-compat>=1.11.1",
+]
 
-[tool.poetry.urls]
-"Bug Tracker" = "https://github.com/forieux/udft/issues"
-"Author webpage" = "https://pro.orieux.fr/"
+[project.urls]
+homepage = "https://udft.readthedocs.io/en/stable/"
+documentation = "https://udft.readthedocs.io/en/stable/"
+repository = "https://github.com/forieux/udft/"
+issues = "https://github.com/forieux/udft/issues"
+changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+"author webpage" = "https://pro.orieux.fr/"
 
-[tool.poetry.dependencies]
-python = ">=3.8, <4"
-numpy = "^1.20.2"
-pyFFTW = {version = "^0.12.0", optional = true}
-
-[tool.poetry.extras]
-fftw = ["pyFFTW"]
-
-[tool.poetry.dev-dependencies]
-ipython = "^7.22.0"
-bump2version = "^1.0.1"
-mypy = "^0.812"
-pylint = "^2.8.2"
-flake8 = "^3.9.1"
-sphinx-rtd-theme = "^1.0.0"
-sphinx-autodoc-typehints = "^1.12.0"
-pytest = "^6.2.5"
-scipy = "^1.9.1"
+[project.optional-dependencies]
+scipy = [
+    "scipy>=1.15.2",
+]
+fftw = [
+    "pyfftw>=0.15.0",
+]
+all = [
+    "pyfftw>=0.15.0",
+    "scipy>=1.15.2",
+]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "bump2version>=1.0.1",
+    "ipython>=9.0.2",
+    "python-lsp-ruff>=2.2.2",
+    "sphinx-autodoc-typehints>=3.1.0",
+    "sphinx-rtd-theme>=3.0.2",
+]
