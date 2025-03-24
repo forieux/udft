@@ -1,5 +1,5 @@
 # UDFT: Unitary Discrete Fourier Transform (and related)
-# Copyright (C) 2021-2022 François Orieux <francois.orieux@universite-paris-saclay.fr>
+# Copyright (C) 2021-2025 François Orieux <francois.orieux@universite-paris-saclay.fr>
 
 # This is free and unencumbered software released into the public domain.
 #
@@ -32,52 +32,27 @@
 Unitary discrete Fourier transform (and related)
 
 This module implements unitary discrete Fourier transforms, which are
-orthonormal. It is just a thin wrapper around Numpy or pyFFTW (maybe others in
-the future), mainly done for my personal usage. They are useful for convolution
-[1]: they respect the Perceval equality, the value of the null frequency is
-equal to
+orthonormal. They are useful for convolution: they respect the Parseval
+equality, the value of the null frequency is equal to
 
  1
 -- ∑ₙ xₙ.
 √N
 
-The transforms are always applied on the last axes for performances (C-order
-array). For more flexible usage, you must use the numpy.fft functions directly.
+The transforms are applied on the last axes for performances (C-order array).
+
+This module use the Array API standard and use the array-api-compat module to be
+array agnostic. For more flexible usage, you must use methods provided by your
+array library.
 
 """
 
-import multiprocessing
-from typing import Optional, Sequence, Tuple
-
-import numpy as np  # type: ignore
-import numpy.fft as npfft  # type: ignore
-from numpy import ndarray as array
-
-_valid_lib = {"numpy"}
-
-try:
-    import pyfftw  # type: ignore
-    import pyfftw.interfaces.numpy_fft as fftw  # type: ignore
-
-    _valid_lib.add("fftw")
-    pyfftw.config.NUM_THREADS = multiprocessing.cpu_count() / 2
-except ImportError:
-    pass
-
-try:
-    import scipy.fft as spfft  # type: ignore
-
-    _valid_lib.add("scipy")
-except ImportError:
-    pass
-
-
 __author__ = "François Orieux"
 __copyright__ = (
-    "2021, 2022, François Orieux <francois.orieux@universite-paris-saclay.fr>"
+    "2021-2025, François Orieux <francois.orieux@universite-paris-saclay.fr>"
 )
 __credits__ = ["François Orieux"]
-__license__ = "Public Domain"
+__license__ = "Unlicense"
 __version__ = "3.6.1"
 __maintainer__ = "François Orieux"
 __email__ = "francois.orieux@universite-paris-saclay.fr"
@@ -85,9 +60,16 @@ __status__ = "stable"
 __url__ = "https://github.com/forieux/udft"
 __keywords__ = "fft, Fourier"
 
+from typing import TypeVar, TypeGuard, Sequence, Tuple
 
-OptStr = Optional[str]
-OptInt = Optional[int]
+import array_api_compat
+import array_api_compat.numpy as np
+
+try:
+    import scipy.fft as spfft
+except ImportError:
+    spfft = None
+
 
 __all__ = [
     "dftn",
@@ -106,39 +88,21 @@ __all__ = [
     "fr2ir",
     "diff_ir",
     "laplacian",
-    "get_lib",
-    "set_lib",
-    "valid_lib",
 ]
 
 
-_lib = "numpy"
+Array = TypeVar("Array")
 
 
-def set_lib(lib: str) -> None:
-    global _lib
-    if lib not in _valid_lib:
-        raise ValueError(
-            f"{lib} is not a valid `lib` value. Must be one of {_valid_lib}."
-        )
-    else:
-        _lib = lib
+def is_array(x) -> TypeGuard[Array]:
+    """A TypeGuard for array-like objects."""
+    return array_api_compat.is_array_api_obj(x)
 
 
-def get_lib() -> str:
-    return str(_lib)
-
-
-def valid_lib() -> str:
-    return str(_valid_lib)
-
-
-# numpy < fftw < scipy
-if "scipy" in _valid_lib:
-    set_lib("scipy")
-
-
-def dftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
+def dftn(
+    inarray: Array,
+    ndim: int | None = None,
+) -> Array:
     """ND unitary discrete Fourier transform.
 
     Parameters
@@ -148,34 +112,41 @@ def dftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
     ndim : int, optional
         The `ndim` last axes along which to compute the transform. All
         axes by default.
-    lib : str, optional
-        Specify the library to compute the Fourier transform. See `set_lib`
-        `get_lib` functions for the default.
 
     Returns
     -------
     outarray : array-like
         The DFT of `inarray` with same shape.
 
+    Notes
+    -----
+
+    If `inarray` is a Numpy array, if available multithreaded `scipy.fft` is
+    used, otherwise the namespace of the array's library is used.
+
     """
-    if ndim is None:
-        ndim = inarray.ndim
-    if lib is None:
-        lib = get_lib()
+    if not is_array(inarray):
+        raise ValueError(
+            "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
+        )
+
+    xp = array_api_compat.array_namespace(inarray)
+
+    ndim = inarray.ndim if ndim is None else ndim
 
     if ndim < 1 or ndim > inarray.ndim:
         raise ValueError("`ndim` must be >= 1.")
 
-    if lib == "numpy":
-        return npfft.fftn(inarray, axes=range(-ndim, 0), norm="ortho")
-    if lib == "scipy":
-        return spfft.fftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)
-    if lib == "fftw":
-        return fftw.fftn(inarray, axes=range(-ndim, 0), norm="ortho")
-    raise ValueError(f"{lib} is not a valid `lib` value.")
+    if array_api_compat.is_numpy_array(inarray) and spfft:  # type: ignore
+        return spfft.fftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)  # type: ignore
+
+    return xp.fft.fftn(inarray, axes=range(-ndim, 0), norm="ortho")
 
 
-def idftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
+def idftn(
+    inarray: Array,
+    ndim: int | None = None,
+) -> Array:
     """ND unitary inverse discrete Fourier transform.
 
     Parameters
@@ -185,34 +156,37 @@ def idftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
     ndim : int, optional
         The `ndim` last axes along wich to compute the transform. All
         axes by default.
-    lib : str, optional
-        Specify the library to compute the Fourier transform. See `set_lib`
-        `get_lib` functions for the default.
 
     Returns
     -------
     outarray : array-like
         The IDFT of `inarray` with same shape.
 
+    Notes
+    -----
+    If `inarray` is a Numpy array, if available multithreaded `scipy.fft` is
+    used, otherwise the namespace of the array's library is used.
+
     """
-    if ndim is None:
-        ndim = inarray.ndim
-    if lib is None:
-        lib = get_lib()
+    if not is_array(inarray):
+        raise ValueError(
+            "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
+        )
+
+    xp = array_api_compat.array_namespace(inarray)
+
+    ndim = inarray.ndim if ndim is None else ndim
 
     if ndim < 1 or ndim > inarray.ndim:
         raise ValueError("`ndim` must be >= 1.")
 
-    if lib == "numpy":
-        return npfft.ifftn(inarray, axes=range(-ndim, 0), norm="ortho")
-    if lib == "scipy":
-        return spfft.ifftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)
-    if lib == "fftw":
-        return fftw.ifftn(inarray, axes=range(-ndim, 0), norm="ortho")
-    raise ValueError(f"{lib} is not a valid `lib` value.")
+    if array_api_compat.is_numpy_array(inarray) and spfft:  # type: ignore
+        return spfft.ifftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)  # type: ignore
+
+    return xp.fft.ifftn(inarray, axes=range(-ndim, 0), norm="ortho")
 
 
-def dft(inarray: array, lib: OptStr = None) -> array:
+def dft(inarray: Array) -> Array:
     """1D unitary discrete Fourier transform.
 
     Compute the unitary DFT on the last axis.
@@ -221,9 +195,6 @@ def dft(inarray: array, lib: OptStr = None) -> array:
     ----------
     inarray : array-like
         The array to transform.
-    lib : str, optional
-        Specify the library to compute the Fourier transform. See `set_lib`
-        `get_lib` functions for the default.
 
     Returns
     -------
@@ -231,10 +202,10 @@ def dft(inarray: array, lib: OptStr = None) -> array:
         The DFT of `inarray` with same shape.
 
     """
-    return dftn(inarray, 1, lib=lib)
+    return dftn(inarray, 1)
 
 
-def idft(inarray: array, lib: OptStr = None) -> array:
+def idft(inarray: Array) -> Array:
     """1D unitary inverse discrete Fourier transform.
 
     Compute the unitary inverse DFT transform on the last axis.
@@ -243,9 +214,6 @@ def idft(inarray: array, lib: OptStr = None) -> array:
     ----------
     inarray : array-like
         The array to transform.
-    lib : str, optional
-        Specify the library to compute the Fourier transform. See `set_lib`
-        `get_lib` functions for the default.
 
     Returns
     -------
@@ -253,10 +221,10 @@ def idft(inarray: array, lib: OptStr = None) -> array:
         The DFT of `inarray` with same shape.
 
     """
-    return idftn(inarray, 1, lib=lib)
+    return idftn(inarray, 1)
 
 
-def dft2(inarray: array, lib: OptStr = None) -> array:
+def dft2(inarray: Array) -> Array:
     """2D unitary discrete Fourier transform.
 
     Compute the unitary DFT on the last 2 axes.
@@ -265,9 +233,6 @@ def dft2(inarray: array, lib: OptStr = None) -> array:
     ----------
     inarray : array-like
         The array to transform.
-    lib : str, optional
-        Specify the library to compute the Fourier transform. See `set_lib`
-        `get_lib` functions for the default.
 
     Returns
     -------
@@ -275,10 +240,10 @@ def dft2(inarray: array, lib: OptStr = None) -> array:
         The DFT of `inarray` with same shape.
 
     """
-    return dftn(inarray, 2, lib=lib)
+    return dftn(inarray, 2)
 
 
-def idft2(inarray: array, lib: OptStr = None) -> array:
+def idft2(inarray: Array) -> Array:
     """2D unitary inverse discrete Fourier transform.
 
     Compute the unitary IDFT on the last 2 axes.
@@ -287,9 +252,6 @@ def idft2(inarray: array, lib: OptStr = None) -> array:
     ----------
     inarray : array-like
         The array to transform.
-    lib : str, optional
-        Specify the library to compute the Fourier transform. See `set_lib`
-        `get_lib` functions for the default.
 
     Returns
     -------
@@ -297,11 +259,14 @@ def idft2(inarray: array, lib: OptStr = None) -> array:
         The IDFT of `inarray` with same shape.
 
     """
-    return idftn(inarray, 2, lib=lib)
+    return idftn(inarray, 2)
 
 
 # \
-def rdftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
+def rdftn(
+    inarray: Array,
+    ndim: int | None = None,
+) -> Array:
     """ND real unitary discrete Fourier transform.
 
     Consider the Hermitian property of output with input having real values.
@@ -313,9 +278,6 @@ def rdftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
     ndim : int, optional
         The `ndim` last axes along which to compute the transform. All
         axes by default.
-    lib : str, optional
-        Specify the library to compute the Fourier transform. See `set_lib`
-        `get_lib` functions for the default.
 
     Returns
     -------
@@ -323,24 +285,28 @@ def rdftn(inarray: array, ndim: OptInt = None, lib: OptStr = None) -> array:
         The real DFT of `inarray` (the last axe as N // 2 + 1 length).
 
     """
-    if ndim is None:
-        ndim = inarray.ndim
-    if lib is None:
-        lib = get_lib()
+    if not is_array(inarray):
+        raise ValueError(
+            "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
+        )
+
+    xp = array_api_compat.array_namespace(inarray)
+
+    ndim = inarray.ndim if ndim is None else ndim
 
     if ndim < 1 or ndim > inarray.ndim:
         raise ValueError("`ndim` must be >= 1.")
 
-    if lib == "numpy":
-        return npfft.rfftn(inarray, axes=range(-ndim, 0), norm="ortho")
-    if lib == "scipy":
-        return spfft.rfftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)
-    if lib == "fftw":
-        return fftw.rfftn(inarray, axes=range(-ndim, 0), norm="ortho")
-    raise ValueError(f"{lib} is not a valid `lib` value.")
+    if array_api_compat.is_numpy_array(inarray) and spfft:  # type: ignore
+        return spfft.rfftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)  # type: ignore
+
+    return xp.fft.rfftn(inarray, axes=range(-ndim, 0), norm="ortho")
 
 
-def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
+def irdftn(
+    inarray: Array,
+    shape: Tuple[int, ...],
+) -> Array:
     """ND real unitary inverse discrete Fourier transform.
 
     Consider the Hermitian property of input and return real values.
@@ -352,9 +318,6 @@ def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
     shape : tuple of int
         The output shape of the `len(shape)` last axes. The transform is applied
         on the `n=len(shape)` axes.
-    lib : str, optional
-        Specify the library to compute the Fourier transform. See `set_lib`
-        `get_lib` functions for the default.
 
     Returns
     -------
@@ -362,23 +325,27 @@ def irdftn(inarray: array, shape: Tuple[int, ...], lib: OptStr = None) -> array:
         The real IDFT of `inarray`.
 
     """
-    if len(shape) > inarray.ndim:
-        raise ValueError("`shape` must respect `0 < len(shape) <= inarray.ndim`.")
-    if lib is None:
-        lib = get_lib()
+    if not is_array(inarray):
+        raise ValueError(
+            "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
+        )
 
-    if lib == "numpy":
-        return npfft.irfftn(inarray, s=shape, axes=range(-len(shape), 0), norm="ortho")
-    if lib == "scipy":
+    xp = array_api_compat.array_namespace(inarray)
+
+    if len(shape) < 1 or inarray.ndim < len(shape):
+        raise ValueError("`shape` must respect `1 <= len(shape) <= inarray.ndim`.")
+
+    if array_api_compat.is_numpy_array(inarray) and spfft:  # type: ignore
         return spfft.irfftn(
             inarray, s=shape, axes=range(-len(shape), 0), norm="ortho", workers=-1
-        )
-    if lib == "fftw":
-        return fftw.irfftn(inarray, s=shape, axes=range(-len(shape), 0), norm="ortho")
-    raise ValueError(f"{lib} is not a valid `lib` value.")
+        )  # type: ignore
+
+    return xp.fft.irfftn(
+        inarray, s=shape, axes=range(-len(shape), 0), norm="ortho", workers=-1
+    )
 
 
-def rdft(inarray: array, lib: OptStr = None) -> array:
+def rdft(inarray: Array) -> Array:
     """1D real unitary discrete Fourier transform.
 
     Compute the unitary real DFT on the last axis. Consider the Hermitian
@@ -398,10 +365,10 @@ def rdft(inarray: array, lib: OptStr = None) -> array:
         The real DFT of `inarray`, where the last dim has length N//2+1.
 
     """
-    return rdftn(inarray, 1, lib=lib)
+    return rdftn(inarray, 1)
 
 
-def rdft2(inarray: array, lib: OptStr = None) -> array:
+def rdft2(inarray: Array) -> Array:
     """2D real unitary discrete Fourier transform.
 
     Compute the unitary real DFT on the last 2 axes. Consider the Hermitian
@@ -421,25 +388,24 @@ def rdft2(inarray: array, lib: OptStr = None) -> array:
         The real DFT of `inarray`, where the last dim has length N//2+1.
 
     """
-    return rdftn(inarray, 2, lib=lib)
+    return rdftn(inarray, 2)
 
 
 # \
-
-
 def ir2fr(
-    imp_resp: array,
+    imp_resp: Array,
     shape: Tuple[int, ...],
-    origin: Optional[Sequence[int]] = None,
+    origin: Sequence[int] | None = None,
     real: bool = True,
-) -> array:
+) -> Array:
     """Compute the frequency response from impulse responses.
 
     This function makes the necessary correct zero-padding, zero convention,
     correct DFT etc.
 
     The DFT is performed on the last `len(shape)` dimensions for efficiency
-    (C-order array). Use numpy implementation.
+    (C-order array). Use the `imp_resp` namespace and return a `imp_resp`
+    array-like.
 
     Parameters
     ----------
@@ -465,9 +431,16 @@ def ir2fr(
     -----
     - The output is returned as C-contiguous array.
     - For convolution, the result must be used with unitary discrete Fourier
-      transform for the signal (`udftn` or equivalent).
+      transform for the signal (`dftn` or equivalent).
 
     """
+    if not is_array(imp_resp):
+        raise ValueError(
+            "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
+        )
+
+    xp = array_api_compat.array_namespace(imp_resp)
+
     if len(shape) > imp_resp.ndim:
         raise ValueError(
             f"length ({len(shape)}) of `shape` must be inferior or equal to `imp_resp.ndim` ({imp_resp.ndim})"
@@ -491,7 +464,7 @@ def ir2fr(
     # │                       │
     # │                       │
     # └───────────────────────┘
-    irpadded = np.zeros(imp_resp.shape[: -len(shape)] + shape)  # zeros of target shape
+    irpadded = xp.zeros(imp_resp.shape[: -len(shape)] + shape)  # zeros of target shape
     irpadded[tuple(slice(0, s) for s in imp_resp.shape)] = imp_resp
 
     # Roll (circshift in Matlab) to move the origin at index 0 (DFT hypothesis)
@@ -507,28 +480,26 @@ def ir2fr(
     # │                       │     │2222│             │1111│
     # └───────────────────────┘     └────┴─────────────┴────┘
     for axe, shift in enumerate(origin):
-        irpadded = np.roll(irpadded, -shift, imp_resp.ndim - len(shape) + axe)
+        irpadded = xp.roll(irpadded, -shift, imp_resp.ndim - len(shape) + axe)
 
     # Perform the DFT on the last axes
     if real:
-        return np.ascontiguousarray(
-            np.fft.rfftn(
-                irpadded, axes=list(range(imp_resp.ndim - len(shape), imp_resp.ndim))
-            )
-        )
-    return np.ascontiguousarray(
-        np.fft.fftn(
+        tf = xp.fft.rfftn(
             irpadded, axes=list(range(imp_resp.ndim - len(shape), imp_resp.ndim))
         )
+        return np.ascontiguousarray(tf, like=imp_resp)  # type: ignore
+    tf = xp.fft.fftn(
+        irpadded, axes=list(range(imp_resp.ndim - len(shape), imp_resp.ndim))
     )
+    return np.ascontiguousarray(tf, like=imp_resp)  # type: ignore
 
 
 def fr2ir(
-    freq_resp: array,
+    freq_resp: Array,
     shape: Tuple[int, ...],
-    origin: Optional[Sequence[int]] = None,
+    origin: Sequence[int] | None = None,
     real: bool = True,
-) -> array:
+) -> Array:
     """Return the impulse responses from frequency responses.
 
     This function makes the necessary correct zero-padding, zero convention,
@@ -537,7 +508,8 @@ def fr2ir(
     The IR array is supposed to have the origin in the middle of the array.
 
     The Fourier transform is performed on the last `len(shape)` dimensions for
-    efficiency (C-order array). Use `np.fft`.
+    efficiency (C-order array). Use `freq_resp` namespacsp``` namespace and
+    return an array like `freq_resp`.
 
     Parameters
     ----------
@@ -561,37 +533,44 @@ def fr2ir(
     - The output is returned as C-contiguous array.
     - For convolution, the result has to be used with unitary discrete Fourier
       transform for the signal (udftn or equivalent).
+
     """
+    if not is_array(freq_resp):
+        raise ValueError(
+            "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
+        )
+
+    xp = array_api_compat.array_namespace(freq_resp)
+
     if len(shape) > freq_resp.ndim:
         raise ValueError(
-            "length of `shape` must be inferior or equal to `imp_resp.ndim`"
+            "length of `shape` must be inferior or equal to `freq_resp.ndim`"
         )
 
     if origin is None:
-        origin = [int(np.floor(length / 2)) for length in shape]
+        origin = [int(xp.floor(length / 2)) for length in shape]
 
     if len(origin) != len(shape):
         raise ValueError("`origin` and `shape` must have the same length")
 
     if real:
-        irpadded = np.fft.irfftn(
+        irpadded = xp.fft.irfftn(
             freq_resp, axes=list(range(freq_resp.ndim - len(shape), freq_resp.ndim))
         )
     else:
-        irpadded = np.fft.ifftn(
+        irpadded = xp.fft.ifftn(
             freq_resp, axes=list(range(freq_resp.ndim - len(shape), freq_resp.ndim))
         )
 
     for axe, shift in enumerate(origin):
-        irpadded = np.roll(irpadded, shift, freq_resp.ndim - len(shape) + axe)
+        irpadded = xp.roll(irpadded, shift, freq_resp.ndim - len(shape) + axe)
 
-    return np.ascontiguousarray(irpadded[tuple(slice(0, s) for s in shape)])
+    return np.ascontiguousarray(
+        irpadded[tuple(slice(0, s) for s in shape)], like=freq_resp
+    )  # type: ignore
 
 
-# \
-
-
-def diff_ir(ndim=1, axis=0, norm=False):
+def diff_ir(ndim=1, axis=0, norm=True, like=None):
     """Return the impulse response of first order differences.
 
     Parameters
@@ -600,6 +579,8 @@ def diff_ir(ndim=1, axis=0, norm=False):
         The number of dimensions of the array on which the diff will apply.
     axis : int, optional
         The axis (dimension) where the diff operates.
+    norm: bool, optional
+        The output is normalized by ∑_i |h_i|.
 
     Returns
     -------
@@ -607,6 +588,8 @@ def diff_ir(ndim=1, axis=0, norm=False):
         The impulse response
 
     """
+    xp = array_api_compat.array_namespace(like) if like is not None else np
+
     if ndim <= 0:
         raise ValueError("The number of dimensions `ndim` must respect `ndim > 0`.")
     if axis >= ndim:
@@ -615,12 +598,12 @@ def diff_ir(ndim=1, axis=0, norm=False):
     shape = ndim * [1]
     shape[axis] = 3
     if norm:
-        return np.reshape(np.array([0, -1, 1], ndmin=ndim) / 2, shape)
-    else:
-        return np.reshape(np.array([0, -1, 1], ndmin=ndim), shape)
+        return xp.reshape(xp.array([0, -1, 1], ndmin=ndim) / 2, shape)
+
+    return xp.reshape(xp.array([0, -1, 1], ndmin=ndim), shape)
 
 
-def laplacian(ndim: int, norm=False) -> array:
+def laplacian(ndim: int, norm=False, like=None) -> Array:
     """Return the Laplacian impulse response.
 
     The second-order difference in each axes.
@@ -629,31 +612,32 @@ def laplacian(ndim: int, norm=False) -> array:
     ----------
     ndim : int
         The dimension of the Laplacian.
+    norm: bool, optional
+        The output is normalized by ∑_i |h_i|.
 
     Returns
     -------
     out : array_like
         The impulse response
     """
-    imp = np.zeros([3] * ndim)
+    xp = array_api_compat.array_namespace(like) if like is not None else np
+
+    imp = xp.zeros([3] * ndim)
     for dim in range(ndim):
         idx = tuple(
             [slice(1, 2)] * dim + [slice(None)] + [slice(1, 2)] * (ndim - dim - 1)
         )
-        imp[idx] = np.array([-1.0, 0.0, -1.0]).reshape(
+        imp[idx] = xp.array([-1.0, 0.0, -1.0]).reshape(
             [-1 if i == dim else 1 for i in range(ndim)]
         )
     imp[tuple([slice(1, 2)] * ndim)] = 2.0 * ndim
     if norm:
-        return imp / np.sum(np.abs(imp))
-    else:
-        return imp
+        return imp / xp.sum(xp.abs(imp))
+
+    return imp
 
 
-# \
-
-
-def hnorm(inarray: array, inshape: Tuple[int, ...]) -> array:
+def hnorm(inarray: Array, inshape: Tuple[int, ...]) -> Array:
     r"""Hermitian l2-norm of array in discrete Fourier space.
 
     Compute the l2-norm of complex array
@@ -679,18 +663,24 @@ def hnorm(inarray: array, inshape: Tuple[int, ...]) -> array:
     norm : float
 
     """
+    if not is_array(inarray):
+        raise ValueError(
+            "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
+        )
+    xp = array_api_compat.array_namespace()
+
     axis = tuple(range(-len(inshape), 0))
     axis2 = tuple(range(-(len(inshape) - 1), 0))
-    norm = 2 * np.sum(np.abs(inarray) ** 2, axis=axis) - np.sum(
-        np.abs(inarray[..., 0]) ** 2, axis=axis2
+    norm = 2 * xp.sum(xp.abs(inarray) ** 2, axis=axis) - xp.sum(
+        xp.abs(inarray[..., 0]) ** 2, axis=axis2
     )
     if inshape[-1] % 2 == 0:
-        norm -= np.sum(np.abs(inarray[..., -1]) ** 2, axis=axis2, keepdims=True)
+        norm -= xp.sum(xp.abs(inarray[..., -1]) ** 2, axis=axis2, keepdims=True)
 
-    return np.sqrt(norm)
+    return xp.sqrt(norm)
 
 
-def crandn(shape: Tuple[int, ...]) -> array:
+def crandn(shape: Tuple[int, ...], like=None) -> Array:
     """Draw from white complex Normal.
 
     Draw unitary DFT of real white Gaussian field of zero mean and unit
@@ -698,8 +688,10 @@ def crandn(shape: Tuple[int, ...]) -> array:
     consider half of the frequency plane already.
 
     """
-    return np.sqrt(0.5) * (
-        np.random.standard_normal(shape) + 1j * np.random.standard_normal(shape)
+    xp = array_api_compat.array_namespace(like) if like is not None else np
+
+    return xp.sqrt(0.5) * (
+        xp.random.standard_normal(shape) + 1j * xp.random.standard_normal(shape)
     )
 
 

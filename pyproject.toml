@@ -9,7 +9,7 @@ authors = [
 maintainers = [
     { name = "François Orieux", email = "francois.orieux@universite-paris-saclay.fr" }
 ]
-license = "CC0-1.0"
+license = "Unlicense"
 keywords = ["fft", "orthonormal"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -24,6 +24,7 @@ classifiers = [
 requires-python = ">=3.12"
 dependencies = [
     "array-api-compat>=1.11.1",
+    "numpy>=2.2.3",
 ]
 
 [project.urls]
@@ -38,13 +39,6 @@ changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
 scipy = [
     "scipy>=1.15.2",
 ]
-fftw = [
-    "pyfftw>=0.15.0",
-]
-all = [
-    "pyfftw>=0.15.0",
-    "scipy>=1.15.2",
-]
 
 [build-system]
 requires = ["hatchling"]
@@ -54,7 +48,7 @@ build-backend = "hatchling.build"
 dev = [
     "bump2version>=1.0.1",
     "ipython>=9.0.2",
-    "python-lsp-ruff>=2.2.2",
+    "pyright>=1.1.396",
     "sphinx-autodoc-typehints>=3.1.0",
     "sphinx-rtd-theme>=3.0.2",
 ]
