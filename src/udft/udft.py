@@ -120,10 +120,8 @@ def dftn(
 
     Notes
     -----
-
     If `inarray` is a Numpy array, if available multithreaded `scipy.fft` is
     used, otherwise the namespace of the array's library is used.
-
     """
     if not is_array(inarray):
         raise ValueError(
@@ -166,7 +164,6 @@ def idftn(
     -----
     If `inarray` is a Numpy array, if available multithreaded `scipy.fft` is
     used, otherwise the namespace of the array's library is used.
-
     """
     if not is_array(inarray):
         raise ValueError(
@@ -200,7 +197,6 @@ def dft(inarray: Array) -> Array:
     -------
     outarray : array-like
         The DFT of `inarray` with same shape.
-
     """
     return dftn(inarray, 1)
 
@@ -219,7 +215,6 @@ def idft(inarray: Array) -> Array:
     -------
     outarray : array-like
         The DFT of `inarray` with same shape.
-
     """
     return idftn(inarray, 1)
 
@@ -238,7 +233,6 @@ def dft2(inarray: Array) -> Array:
     -------
     outarray : array-like
         The DFT of `inarray` with same shape.
-
     """
     return dftn(inarray, 2)
 
@@ -257,12 +251,10 @@ def idft2(inarray: Array) -> Array:
     -------
     outarray : array-like
         The IDFT of `inarray` with same shape.
-
     """
     return idftn(inarray, 2)
 
 
-# \
 def rdftn(
     inarray: Array,
     ndim: int | None = None,
@@ -283,7 +275,6 @@ def rdftn(
     -------
     outarray : array-like
         The real DFT of `inarray` (the last axe as N // 2 + 1 length).
-
     """
     if not is_array(inarray):
         raise ValueError(
@@ -323,7 +314,6 @@ def irdftn(
     -------
     outarray : array-like
         The real IDFT of `inarray`.
-
     """
     if not is_array(inarray):
         raise ValueError(
@@ -363,7 +353,6 @@ def rdft(inarray: Array) -> Array:
     -------
     outarray : array-like
         The real DFT of `inarray`, where the last dim has length N//2+1.
-
     """
     return rdftn(inarray, 1)
 
@@ -386,7 +375,6 @@ def rdft2(inarray: Array) -> Array:
     -------
     outarray : array-like
         The real DFT of `inarray`, where the last dim has length N//2+1.
-
     """
     return rdftn(inarray, 2)
 
@@ -432,7 +420,6 @@ def ir2fr(
     - The output is returned as C-contiguous array.
     - For convolution, the result must be used with unitary discrete Fourier
       transform for the signal (`dftn` or equivalent).
-
     """
     if not is_array(imp_resp):
         raise ValueError(
@@ -533,7 +520,6 @@ def fr2ir(
     - The output is returned as C-contiguous array.
     - For convolution, the result has to be used with unitary discrete Fourier
       transform for the signal (udftn or equivalent).
-
     """
     if not is_array(freq_resp):
         raise ValueError(
@@ -586,7 +572,6 @@ def diff_ir(ndim=1, axis=0, norm=True, like=None):
     -------
     out : array_like
         The impulse response
-
     """
     xp = array_api_compat.array_namespace(like) if like is not None else np
 
@@ -661,7 +646,6 @@ def hnorm(inarray: Array, inshape: Tuple[int, ...]) -> Array:
     Returns
     -------
     norm : float
-
     """
     if not is_array(inarray):
         raise ValueError(
@@ -686,7 +670,6 @@ def crandn(shape: Tuple[int, ...], like=None) -> Array:
     Draw unitary DFT of real white Gaussian field of zero mean and unit
     variance. Does not consider hermitian property, `shape` is supposed to
     consider half of the frequency plane already.
-
     """
     xp = array_api_compat.array_namespace(like) if like is not None else np
 
