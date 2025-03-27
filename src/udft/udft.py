@@ -47,31 +47,18 @@ array library.
 
 """
 
-__author__ = "François Orieux"
-__copyright__ = (
-    "2021-2025, François Orieux <francois.orieux@universite-paris-saclay.fr>"
-)
-__credits__ = ["François Orieux"]
-__license__ = "Unlicense"
-__version__ = "3.6.1"
-__maintainer__ = "François Orieux"
-__email__ = "francois.orieux@universite-paris-saclay.fr"
-__status__ = "stable"
-__url__ = "https://github.com/forieux/udft"
-__keywords__ = "fft, Fourier"
+from typing import TypeVar, Protocol, TypeGuard, Sequence, Tuple, Any
 
-from typing import TypeVar, TypeGuard, Sequence, Tuple
-
-import array_api_compat
-import array_api_compat.numpy as np
+import array_api_compat  # type: ignore
+from array_api_compat import numpy as np  # type: ignore
 
 try:
-    import scipy.fft as spfft
+    from scipy import fft as spfft  # type: ignore
 except ImportError:
     spfft = None
 
 
-__all__ = [
+__all__ = [  # noqa: WPS410
     "dftn",
     "idftn",
     "dft",
@@ -91,12 +78,24 @@ __all__ = [
 ]
 
 
-Array = TypeVar("Array")
+class ArrayLike(Protocol):
+    ndim: int
+    shape: Tuple[int, ...]
+
+    def __getitem__(self, index: Any) -> Any: ...
 
 
-def is_array(x) -> TypeGuard[Array]:
+Array = TypeVar("Array", bound=ArrayLike)
+
+
+def is_array(arr: Array) -> TypeGuard[Array]:
     """A TypeGuard for array-like objects."""
-    return array_api_compat.is_array_api_obj(x)
+    return array_api_compat.is_array_api_obj(arr)
+
+
+_not_array_message = (
+    "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
+)
 
 
 def dftn(
@@ -120,13 +119,12 @@ def dftn(
 
     Notes
     -----
-    If `inarray` is a Numpy array, if available multithreaded `scipy.fft` is
+    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
     used, otherwise the namespace of the array's library is used.
+
     """
     if not is_array(inarray):
-        raise ValueError(
-            "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
-        )
+        raise ValueError(_not_array_message)
 
     xp = array_api_compat.array_namespace(inarray)
 
@@ -162,13 +160,13 @@ def idftn(
 
     Notes
     -----
-    If `inarray` is a Numpy array, if available multithreaded `scipy.fft` is
+
+    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
     used, otherwise the namespace of the array's library is used.
+
     """
     if not is_array(inarray):
-        raise ValueError(
-            "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
-        )
+        raise ValueError(_not_array_message)
 
     xp = array_api_compat.array_namespace(inarray)
 
@@ -197,6 +195,12 @@ def dft(inarray: Array) -> Array:
     -------
     outarray : array-like
         The DFT of `inarray` with same shape.
+
+    Notes
+    -----
+    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
+    used, otherwise the namespace of the array's library is used.
+
     """
     return dftn(inarray, 1)
 
@@ -214,7 +218,13 @@ def idft(inarray: Array) -> Array:
     Returns
     -------
     outarray : array-like
-        The DFT of `inarray` with same shape.
+        The IDFT of `inarray` with same shape.
+
+    Notes
+    -----
+    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
+    used, otherwise the namespace of the array's library is used.
+
     """
     return idftn(inarray, 1)
 
@@ -233,6 +243,12 @@ def dft2(inarray: Array) -> Array:
     -------
     outarray : array-like
         The DFT of `inarray` with same shape.
+
+    Notes
+    -----
+    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
+    used, otherwise the namespace of the array's library is used.
+
     """
     return dftn(inarray, 2)
 
@@ -251,6 +267,12 @@ def idft2(inarray: Array) -> Array:
     -------
     outarray : array-like
         The IDFT of `inarray` with same shape.
+
+    Notes
+    -----
+    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
+    used, otherwise the namespace of the array's library is used.
+
     """
     return idftn(inarray, 2)
 
@@ -275,11 +297,15 @@ def rdftn(
     -------
     outarray : array-like
         The real DFT of `inarray` (the last axe as N // 2 + 1 length).
+
+    Notes
+    -----
+    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
+    used, otherwise the namespace of the array's library is used.
+
     """
     if not is_array(inarray):
-        raise ValueError(
-            "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
-        )
+        raise ValueError(_not_array_message)
 
     xp = array_api_compat.array_namespace(inarray)
 
@@ -314,24 +340,33 @@ def irdftn(
     -------
     outarray : array-like
         The real IDFT of `inarray`.
+
+    Notes
+    -----
+    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
+    used, otherwise the namespace of the array's library is used.
+
     """
     if not is_array(inarray):
-        raise ValueError(
-            "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
-        )
+        raise ValueError(_not_array_message)
 
     xp = array_api_compat.array_namespace(inarray)
+    ndim = len(shape)
 
-    if len(shape) < 1 or inarray.ndim < len(shape):
-        raise ValueError("`shape` must respect `1 <= len(shape) <= inarray.ndim`.")
+    if ndim < 1 or inarray.ndim < ndim:
+        raise ValueError("`shape` must respect `1 <= ndim <= inarray.ndim`.")
 
     if array_api_compat.is_numpy_array(inarray) and spfft:  # type: ignore
         return spfft.irfftn(
-            inarray, s=shape, axes=range(-len(shape), 0), norm="ortho", workers=-1
-        )  # type: ignore
+            inarray,  # type: ignore
+            s=shape,
+            axes=range(-ndim, 0),
+            norm="ortho",
+            workers=-1,
+        )
 
     return xp.fft.irfftn(
-        inarray, s=shape, axes=range(-len(shape), 0), norm="ortho", workers=-1
+        inarray, s=shape, axes=range(-ndim, 0), norm="ortho", workers=-1
     )
 
 
@@ -345,14 +380,17 @@ def rdft(inarray: Array) -> Array:
     ----------
     inarray : array-like
         The array to transform.
-    lib : str, optional
-        Specify the library to compute the Fourier transform. See `set_lib`
-        `get_lib` functions for the default.
 
     Returns
     -------
     outarray : array-like
         The real DFT of `inarray`, where the last dim has length N//2+1.
+
+    Notes
+    -----
+    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
+    used, otherwise the namespace of the array's library is used.
+
     """
     return rdftn(inarray, 1)
 
@@ -367,19 +405,21 @@ def rdft2(inarray: Array) -> Array:
     ----------
     inarray : array-like
         The array to transform.
-    lib : str, optional
-        Specify the library to compute the Fourier transform. See `set_lib`
-        `get_lib` functions for the default.
 
     Returns
     -------
     outarray : array-like
         The real DFT of `inarray`, where the last dim has length N//2+1.
+
+    Notes
+    -----
+    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
+    used, otherwise the namespace of the array's library is used.
+
     """
     return rdftn(inarray, 2)
 
 
-# \
 def ir2fr(
     imp_resp: Array,
     shape: Tuple[int, ...],
@@ -413,30 +453,62 @@ def ir2fr(
     -------
     out : array-like
       The frequency responses of shape `shape` on the last `len(shape)`
-      dimensions. If `real` is `True`, the last dimension as lenght `N//2+1`.
+      dimensions. If `real` is `True`, the last dimension as length `N//2+1`.
 
     Notes
     -----
     - The output is returned as C-contiguous array.
     - For convolution, the result must be used with unitary discrete Fourier
       transform for the signal (`dftn` or equivalent).
+    - What it does is
+
+      1. Place the IR with zero filling on the target shape
+
+         ┌────────┬──────────────┐
+         │        │              │
+         │   IR   │              │
+         │        │              │
+         │        │              │
+         ├────────┘              │
+         │            0          │
+         │                       │
+         │                       │
+         │                       │
+         └───────────────────────┘
+
+      2. Roll (circshift in Matlab) to move the origin at index 0 (DFT hypothesis)
+
+         ┌────────┬──────────────┐     ┌────┬─────────────┬────┐
+         │11112222│              │     │4444│             │3333│
+         │11112222│              │     │4444│             │3333│
+         │33334444│              │     ├────┘             └────┤
+         │33334444│              │     │                       │
+         ├────────┘   0          │ ->  │           0           │
+         │                       │     │                       │
+         │                       │     ├────┐             ┌────┤
+         │                       │     │2222│             │1111│
+         │                       │     │2222│             │1111│
+         └───────────────────────┘     └────┴─────────────┴────┘
+
+      3. Perform the DFT on the last axes
+
+      4. Return the result as a contiguous array
     """
     if not is_array(imp_resp):
-        raise ValueError(
-            "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
-        )
+        raise ValueError(_not_array_message)
 
     xp = array_api_compat.array_namespace(imp_resp)
+    ndim = len(shape)
 
-    if len(shape) > imp_resp.ndim:
+    if ndim > imp_resp.ndim:
         raise ValueError(
-            f"length ({len(shape)}) of `shape` must be inferior or equal to `imp_resp.ndim` ({imp_resp.ndim})"
+            f"length ({ndim}) of `shape` must be inferior or equal to `imp_resp.ndim` ({imp_resp.ndim})"
         )
 
     if origin is None:
-        origin = [length // 2 for length in imp_resp.shape[-len(shape) :]]
+        origin = [ndim // 2 for ndim in imp_resp.shape[-ndim:]]
 
-    if len(origin) != len(shape):
+    if len(origin) != ndim:
         raise ValueError("`origin` and `shape` must have the same length")
 
     # Place the IR at the beginning of irpadded
@@ -451,8 +523,8 @@ def ir2fr(
     # │                       │
     # │                       │
     # └───────────────────────┘
-    irpadded = xp.zeros(imp_resp.shape[: -len(shape)] + shape)  # zeros of target shape
-    irpadded[tuple(slice(0, s) for s in imp_resp.shape)] = imp_resp
+    irpadded = xp.zeros(imp_resp.shape[:-ndim] + shape)  # zeros of target shape
+    irpadded[tuple(slice(0, axe) for axe in imp_resp.shape)] = imp_resp
 
     # Roll (circshift in Matlab) to move the origin at index 0 (DFT hypothesis)
     # ┌────────┬──────────────┐     ┌────┬─────────────┬────┐
@@ -467,17 +539,15 @@ def ir2fr(
     # │                       │     │2222│             │1111│
     # └───────────────────────┘     └────┴─────────────┴────┘
     for axe, shift in enumerate(origin):
-        irpadded = xp.roll(irpadded, -shift, imp_resp.ndim - len(shape) + axe)
+        irpadded = xp.roll(irpadded, -shift, imp_resp.ndim - ndim + axe)
 
     # Perform the DFT on the last axes
     if real:
         tf = xp.fft.rfftn(
-            irpadded, axes=list(range(imp_resp.ndim - len(shape), imp_resp.ndim))
+            irpadded, axes=list(range(imp_resp.ndim - ndim, imp_resp.ndim))
         )
         return np.ascontiguousarray(tf, like=imp_resp)  # type: ignore
-    tf = xp.fft.fftn(
-        irpadded, axes=list(range(imp_resp.ndim - len(shape), imp_resp.ndim))
-    )
+    tf = xp.fft.fftn(irpadded, axes=list(range(imp_resp.ndim - ndim, imp_resp.ndim)))
     return np.ascontiguousarray(tf, like=imp_resp)  # type: ignore
 
 
@@ -522,13 +592,13 @@ def fr2ir(
       transform for the signal (udftn or equivalent).
     """
     if not is_array(freq_resp):
-        raise ValueError(
-            "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
-        )
+        raise ValueError(_not_array_message)
 
     xp = array_api_compat.array_namespace(freq_resp)
 
-    if len(shape) > freq_resp.ndim:
+    ndim = len(shape)
+
+    if ndim > freq_resp.ndim:
         raise ValueError(
             "length of `shape` must be inferior or equal to `freq_resp.ndim`"
         )
@@ -536,24 +606,25 @@ def fr2ir(
     if origin is None:
         origin = [int(xp.floor(length / 2)) for length in shape]
 
-    if len(origin) != len(shape):
+    if len(origin) != ndim:
         raise ValueError("`origin` and `shape` must have the same length")
 
     if real:
         irpadded = xp.fft.irfftn(
-            freq_resp, axes=list(range(freq_resp.ndim - len(shape), freq_resp.ndim))
+            freq_resp, axes=list(range(freq_resp.ndim - ndim, freq_resp.ndim))
         )
     else:
         irpadded = xp.fft.ifftn(
-            freq_resp, axes=list(range(freq_resp.ndim - len(shape), freq_resp.ndim))
+            freq_resp, axes=list(range(freq_resp.ndim - ndim, freq_resp.ndim))
         )
 
     for axe, shift in enumerate(origin):
-        irpadded = xp.roll(irpadded, shift, freq_resp.ndim - len(shape) + axe)
+        irpadded = xp.roll(irpadded, shift, freq_resp.ndim - ndim + axe)
 
     return np.ascontiguousarray(
-        irpadded[tuple(slice(0, s) for s in shape)], like=freq_resp
-    )  # type: ignore
+        irpadded[tuple(slice(0, length) for length in shape)],
+        like=freq_resp,  # type: ignore
+    )
 
 
 def diff_ir(ndim=1, axis=0, norm=True, like=None):
@@ -588,7 +659,7 @@ def diff_ir(ndim=1, axis=0, norm=True, like=None):
     return xp.reshape(xp.array([0, -1, 1], ndmin=ndim), shape)
 
 
-def laplacian(ndim: int, norm=False, like=None) -> Array:
+def laplacian(ndim: int, norm=False, like: Array | None = None) -> Array:
     """Return the Laplacian impulse response.
 
     The second-order difference in each axes.
@@ -607,15 +678,17 @@ def laplacian(ndim: int, norm=False, like=None) -> Array:
     """
     xp = array_api_compat.array_namespace(like) if like is not None else np
 
-    imp = xp.zeros([3] * ndim)
+    imp = xp.zeros([3 for _ in range(ndim)])
     for dim in range(ndim):
         idx = tuple(
-            [slice(1, 2)] * dim + [slice(None)] + [slice(1, 2)] * (ndim - dim - 1)
+            [slice(1, 2) for _ in range(ndim)]
+            + [slice(None)]
+            + [slice(1, 2) for _ in range(ndim - dim - 1)]
         )
-        imp[idx] = xp.array([-1.0, 0.0, -1.0]).reshape(
-            [-1 if i == dim else 1 for i in range(ndim)]
+        imp[idx] = xp.array([-1.0, 0, -1.0]).reshape(
+            [-1 if axe == dim else 1 for axe in range(ndim)]
         )
-    imp[tuple([slice(1, 2)] * ndim)] = 2.0 * ndim
+    imp[tuple([slice(1, 2) for _ in range(ndim)])] = 2.0 * ndim
     if norm:
         return imp / xp.sum(xp.abs(imp))
 
@@ -648,30 +721,30 @@ def hnorm(inarray: Array, inshape: Tuple[int, ...]) -> Array:
     norm : float
     """
     if not is_array(inarray):
-        raise ValueError(
-            "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
-        )
+        raise ValueError(_not_array_message)
+
     xp = array_api_compat.array_namespace()
 
     axis = tuple(range(-len(inshape), 0))
     axis2 = tuple(range(-(len(inshape) - 1), 0))
-    norm = 2 * xp.sum(xp.abs(inarray) ** 2, axis=axis) - xp.sum(
-        xp.abs(inarray[..., 0]) ** 2, axis=axis2
-    )
+
+    norm = 2 * xp.sum(xp.abs(inarray) ** 2, axis=axis)
+    norm -= xp.sum(xp.abs(inarray[..., 0]) ** 2, axis=axis2)
+
     if inshape[-1] % 2 == 0:
         norm -= xp.sum(xp.abs(inarray[..., -1]) ** 2, axis=axis2, keepdims=True)
 
     return xp.sqrt(norm)
 
 
-def crandn(shape: Tuple[int, ...], like=None) -> Array:
+def crandn(shape: Tuple[int, ...], like: Array | None = None) -> Array:
     """Draw from white complex Normal.
 
     Draw unitary DFT of real white Gaussian field of zero mean and unit
     variance. Does not consider hermitian property, `shape` is supposed to
     consider half of the frequency plane already.
     """
-    xp = array_api_compat.array_namespace(like) if like is not None else np
+    xp = array_api_compat.array_namespace(like) if like else np
 
     return xp.sqrt(0.5) * (
         xp.random.standard_normal(shape) + 1j * xp.random.standard_normal(shape)

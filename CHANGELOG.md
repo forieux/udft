@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [4.0.0] - 2025-03-
+
+### Changed
+- Bye bye pyfftw and `lib` keyword.
+- Only support `scipy` as an option.
+- Use [array-api-compat](https://data-apis.org/array-api-compat/)
+
 ## [3.6.0] - 2022-08-30
 
 ### Changed
