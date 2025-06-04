@@ -47,7 +47,8 @@ array library.
 
 """
 
-from typing import TypeVar, Protocol, TypeGuard, Sequence, Tuple, Any
+from typing import TypeVar, Protocol, TypeGuard, Any
+from collections.abc import Sequence
 
 import array_api_compat  # type: ignore
 from array_api_compat import numpy as np  # type: ignore
@@ -80,7 +81,7 @@ __all__ = [  # noqa: WPS410
 
 class ArrayLike(Protocol):
     ndim: int
-    shape: Tuple[int, ...]
+    shape: tuple[int, ...]
 
     def __getitem__(self, index: Any) -> Any: ...
 
@@ -322,7 +323,7 @@ def rdftn(
 
 def irdftn(
     inarray: Array,
-    shape: Tuple[int, ...],
+    shape: tuple[int, ...],
 ) -> Array:
     """ND real unitary inverse discrete Fourier transform.
 
@@ -422,7 +423,7 @@ def rdft2(inarray: Array) -> Array:
 
 def ir2fr(
     imp_resp: Array,
-    shape: Tuple[int, ...],
+    shape: tuple[int, ...],
     origin: Sequence[int] | None = None,
     real: bool = True,
 ) -> Array:
@@ -553,7 +554,7 @@ def ir2fr(
 
 def fr2ir(
     freq_resp: Array,
-    shape: Tuple[int, ...],
+    shape: tuple[int, ...],
     origin: Sequence[int] | None = None,
     real: bool = True,
 ) -> Array:
@@ -695,7 +696,7 @@ def laplacian(ndim: int, norm=False, like: Array | None = None) -> Array:
     return imp
 
 
-def hnorm(inarray: Array, inshape: Tuple[int, ...]) -> Array:
+def hnorm(inarray: Array, inshape: tuple[int, ...]) -> Array:
     r"""Hermitian l2-norm of array in discrete Fourier space.
 
     Compute the l2-norm of complex array
@@ -737,7 +738,7 @@ def hnorm(inarray: Array, inshape: Tuple[int, ...]) -> Array:
     return xp.sqrt(norm)
 
 
-def crandn(shape: Tuple[int, ...], like: Array | None = None) -> Array:
+def crandn(shape: tuple[int, ...], like: Array | None = None) -> Array:
     """Draw from white complex Normal.
 
     Draw unitary DFT of real white Gaussian field of zero mean and unit
