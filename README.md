@@ -4,10 +4,7 @@
 
 This module implements unitary discrete Fourier transform, that is orthonormal
 `det(F) = 1` and `F⁻¹ = F^*`. This module existed before the introduction of the
-`norm="ortho"` keyword and is now a very (very) thin wrapper around Numpy and
-[array API standard](https://data-apis.org/array-api/latest/). Thanks to this
-last point, any array library that follow the standard (`PyTorch`, `cupy`) can
-be used by `udft` that use their respective namespace.
+`norm="ortho"` keyword and is now a very (very) thin wrapper around libraries.
 
 It is useful for convolution [1]: they respect the Perceval equality, e.g., the
 value of the null frequency is equal to `1/√N * ∑ₙ xₙ`.
@@ -19,21 +16,23 @@ Trans. on Audio and Electroacoustics, vol. au-19, no. 4, pp. 285-288, dec. 1971
 
 There is also functions related to Fourier and convolution like `ir2fr`.
 
+UDFT use [array API standard](https://data-apis.org/array-api/latest/). Thanks
+to this last point, any array library that follow the standard (`Numpy`,
+`PyTorch`, `cupy`, ...) can be used by `udft` that use their respective
+namespace.
+
 If you are having issues, please let me know
 
 francois.orieux AT universite-paris-saclay.fr
 
 ## Installation and documentation
 
-UDFT is just the file `udft.py` and depends on `numpy` and
-[array-api-compat](https://data-apis.org/array-api-compat/).
-
-An optional dependency is [scipy](https://scipy.org/). If available, [scipy
-namespace](htps://docs.scipy.org/doc/scipy/reference/fft.html) is used for
-`numpy` array for more performance.
+UDFT is just the file `udft.py` and depends on
+[array-api-compat](https://data-apis.org/array-api-compat/) only and therefor is
+compatible with `numpy`, `pytorch`, `jax`, `cupy`...
 
 The API is simple and opinionated for good reason. If you need more parameters
-or options, I simply encourage you to directly use API of your library.
+or options, I simply encourage you to directly use API of your array library.
 
 Documentation is [here](https://udft.readthedocs.io/en/stable/index.html). I
 recommend using [poetry](https://python-poetry.org/) or
