@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-## [4.0.0] - 2025-03-
+## [4.0.0] - 2026-01-22
 
 ### Changed
 - Bye bye pyfftw and `lib` keyword.
@@ -82,7 +82,7 @@ Move py.typed.
 
 - Add py.typed to inform that the module is typed.
 - Fix shape typing
-- Change `Laplacian` to `laplacian` 
+- Change `Laplacian` to `laplacian`
 
 ## [2.0.0] - 2021-04-16
 
