@@ -1,6 +1,6 @@
 [project]
 name = "udft"
-version = "3.6.1"
+version = "4.0.0"
 description = "Unitary discrete Fourier Transform (and related)"
 readme = "README.md"
 authors = [
