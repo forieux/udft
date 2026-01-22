@@ -47,16 +47,18 @@ array library.
 
 """
 
+from typing import Optional
+from types import ModuleType
 from typing import TypeVar, Protocol, TypeGuard, Any
 from collections.abc import Sequence
 
-import array_api_compat  # type: ignore
-from array_api_compat import numpy as np  # type: ignore
+import array_api_compat
+from array_api_compat import numpy as np
 
 try:
-    from scipy import fft as spfft  # type: ignore
+    from scipy import fft as spfft
 except ImportError:
-    spfft = None
+    spfft: Optional[ModuleType] = None
 
 
 __all__ = [  # noqa: WPS410
@@ -134,8 +136,8 @@ def dftn(
     if ndim < 1 or ndim > inarray.ndim:
         raise ValueError("`ndim` must be >= 1.")
 
-    if array_api_compat.is_numpy_array(inarray) and spfft:  # type: ignore
-        return spfft.fftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)  # type: ignore
+    if array_api_compat.is_numpy_array(inarray) and spfft:
+        return spfft.fftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)
 
     return xp.fft.fftn(inarray, axes=range(-ndim, 0), norm="ortho")
 
@@ -176,8 +178,8 @@ def idftn(
     if ndim < 1 or ndim > inarray.ndim:
         raise ValueError("`ndim` must be >= 1.")
 
-    if array_api_compat.is_numpy_array(inarray) and spfft:  # type: ignore
-        return spfft.ifftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)  # type: ignore
+    if array_api_compat.is_numpy_array(inarray) and spfft:
+        return spfft.ifftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)
 
     return xp.fft.ifftn(inarray, axes=range(-ndim, 0), norm="ortho")
 
@@ -315,8 +317,8 @@ def rdftn(
     if ndim < 1 or ndim > inarray.ndim:
         raise ValueError("`ndim` must be >= 1.")
 
-    if array_api_compat.is_numpy_array(inarray) and spfft:  # type: ignore
-        return spfft.rfftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)  # type: ignore
+    if array_api_compat.is_numpy_array(inarray) and spfft:
+        return spfft.rfftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)
 
     return xp.fft.rfftn(inarray, axes=range(-ndim, 0), norm="ortho")
 
@@ -357,9 +359,9 @@ def irdftn(
     if ndim < 1 or inarray.ndim < ndim:
         raise ValueError("`shape` must respect `1 <= ndim <= inarray.ndim`.")
 
-    if array_api_compat.is_numpy_array(inarray) and spfft:  # type: ignore
+    if array_api_compat.is_numpy_array(inarray) and spfft:
         return spfft.irfftn(
-            inarray,  # type: ignore
+            inarray,
             s=shape,
             axes=range(-ndim, 0),
             norm="ortho",
@@ -623,9 +625,9 @@ def fr2ir(
         irpadded = xp.roll(irpadded, shift, freq_resp.ndim - ndim + axe)
 
     return np.ascontiguousarray(
-        irpadded[tuple(slice(0, length) for length in shape)],
-        like=freq_resp,  # type: ignore
-    )
+        a=irpadded[tuple(slice(0, length) for length in shape)],
+        like=freq_resp,
+    )  # ty:ignore[no-matching-overload]
 
 
 def diff_ir(ndim=1, axis=0, norm=True, like=None):
