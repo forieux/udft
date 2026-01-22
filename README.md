@@ -28,8 +28,8 @@ francois.orieux AT universite-paris-saclay.fr
 ## Installation and documentation
 
 UDFT is just the file `udft.py` and depends on
-[array-api-compat](https://data-apis.org/array-api-compat/) only and therefor is
-compatible with `numpy`, `pytorch`, `jax`, `cupy`...
+[array-api-compat](https://data-apis.org/array-api-compat/) and numpy only and
+therefor is compatible with `numpy`, `pytorch`, `jax`, `cupy`...
 
 The API is simple and opinionated for good reason. If you need more parameters
 or options, I simply encourage you to directly use API of your array library.
