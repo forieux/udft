@@ -100,9 +100,4 @@ hnorm
 crandn
 ~~~~~~
 
-.. warning::
-
-   At that time, this function does not respect the hermitian property, this is
-   planned.
-
 .. autofunction::  crandn

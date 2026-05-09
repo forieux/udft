@@ -36,8 +36,12 @@ orthonormal. They are useful for convolution: they respect the Parseval
 equality, the value of the null frequency is equal to
 
  1
--- ∑ₙ xₙ.
+-- ∑ₙ xₙ
 √N
+
+and if H is a circulant convolution with h as a real impulse response, then H =
+F^* Λ F and F^* is the unitary IDFT computed by `irdftn`, F the unitary DFT
+computed by `rdftn` and Λ the frequency response computed with `ir2fr` from h.
 
 The transforms are applied on the last axes for performances (C-order array).
 
@@ -368,9 +372,7 @@ def irdftn(
             workers=-1,
         )
 
-    return xp.fft.irfftn(
-        inarray, s=shape, axes=range(-ndim, 0), norm="ortho", workers=-1
-    )
+    return xp.fft.irfftn(inarray, s=shape, axes=range(-ndim, 0), norm="ortho")
 
 
 def rdft(inarray: Array) -> Array:
@@ -438,6 +440,9 @@ def ir2fr(
     (C-order array). Use the `imp_resp` namespace and return a `imp_resp`
     array-like.
 
+    If H is a circulant convolution with h as impulse response, then H = F^* Λ F
+    and this function compute Λ from h when F and F^* are unitary DFT and IDFT.
+
     Parameters
     ----------
     imp_resp : array-like
@@ -493,9 +498,10 @@ def ir2fr(
          │                       │     │2222│             │1111│
          └───────────────────────┘     └────┴─────────────┴────┘
 
-      3. Perform the DFT on the last axes
+      3. Perform the DFT with 1/N normalisation on the last axes
 
       4. Return the result as a contiguous array
+
     """
     if not is_array(imp_resp):
         raise ValueError(_not_array_message)
@@ -547,10 +553,14 @@ def ir2fr(
     # Perform the DFT on the last axes
     if real:
         tf = xp.fft.rfftn(
-            irpadded, axes=list(range(imp_resp.ndim - ndim, imp_resp.ndim))
+            irpadded,
+            axes=list(range(imp_resp.ndim - ndim, imp_resp.ndim)),
+            norm="forward",
         )
         return np.ascontiguousarray(tf, like=imp_resp)  # type: ignore
-    tf = xp.fft.fftn(irpadded, axes=list(range(imp_resp.ndim - ndim, imp_resp.ndim)))
+    tf = xp.fft.fftn(
+        irpadded, axes=list(range(imp_resp.ndim - ndim, imp_resp.ndim)), norm="forward"
+    )
     return np.ascontiguousarray(tf, like=imp_resp)  # type: ignore
 
 
@@ -568,8 +578,8 @@ def fr2ir(
     The IR array is supposed to have the origin in the middle of the array.
 
     The Fourier transform is performed on the last `len(shape)` dimensions for
-    efficiency (C-order array). Use `freq_resp` namespacsp``` namespace and
-    return an array like `freq_resp`.
+    efficiency (C-order array). Use `freq_resp` namespace and return an array
+    like `freq_resp`.
 
     Parameters
     ----------
@@ -593,6 +603,7 @@ def fr2ir(
     - The output is returned as C-contiguous array.
     - For convolution, the result has to be used with unitary discrete Fourier
       transform for the signal (udftn or equivalent).
+
     """
     if not is_array(freq_resp):
         raise ValueError(_not_array_message)
@@ -630,7 +641,9 @@ def fr2ir(
     )  # ty:ignore[no-matching-overload]
 
 
-def diff_ir(ndim=1, axis=0, norm=True, like=None):
+def diff_ir(
+    ndim: int = 1, axis: int = 0, norm: bool = True, like: Array | None = None
+) -> Array:
     """Return the impulse response of first order differences.
 
     Parameters
@@ -726,7 +739,7 @@ def hnorm(inarray: Array, inshape: tuple[int, ...]) -> Array:
     if not is_array(inarray):
         raise ValueError(_not_array_message)
 
-    xp = array_api_compat.array_namespace()
+    xp = array_api_compat.array_namespace(inarray)
 
     axis = tuple(range(-len(inshape), 0))
     axis2 = tuple(range(-(len(inshape) - 1), 0))
@@ -744,8 +757,10 @@ def crandn(shape: tuple[int, ...], like: Array | None = None) -> Array:
     """Draw from white complex Normal.
 
     Draw unitary DFT of real white Gaussian field of zero mean and unit
-    variance. Does not consider hermitian property, `shape` is supposed to
-    consider half of the frequency plane already.
+    variance. Does not consider hermitian property, `shape` is implicity
+    supposed to be half of the frequency plane already or the full plane if the
+    hermitian property is not present.
+
     """
     xp = array_api_compat.array_namespace(like) if like else np
 
