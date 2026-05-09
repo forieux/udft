@@ -653,7 +653,7 @@ def diff_ir(
     axis : int, optional
         The axis (dimension) where the diff operates.
     norm: bool, optional
-        The output is normalized by ∑_i |h_i|.
+        The output is normalized by :math:`\\sum_i |h_i|`.
 
     Returns
     -------
@@ -685,7 +685,7 @@ def laplacian(ndim: int, norm=False, like: Array | None = None) -> Array:
     ndim : int
         The dimension of the Laplacian.
     norm: bool, optional
-        The output is normalized by ∑_i |h_i|.
+        The output is normalized by :math:`\\sum_i |h_i|`.
 
     Returns
     -------

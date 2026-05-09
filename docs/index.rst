@@ -21,7 +21,6 @@
 
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
    :alt: Documentation Status
-   :scale: 100%
    :target: https://docs.readthedocs.io/en/latest/?badge=latest
 
 This module implements unitary (orthonormal) discrete Fourier transforms and
@@ -38,6 +37,11 @@ is equal to
 
    X_0 = \frac{1}{\sqrt{N}} \sum_{n=0}^{N-1} x_n, \text{ and } x_0 = \frac{1}{\sqrt{N}} \sum_{n'=0}^{N-1} X_{n'}.
 
+and if :math:`H` is a circulant convolution with :math:`h` as a real impulse
+response, then :math:`H = F^* \Lambda F` where :math:`F^*` is the unitary IDFT
+computed by :func:`irdftn`, :math:`F` the unitary DFT computed by :func:`rdftn`,
+and :math:`\Lambda` the frequency response computed with :func:`ir2fr` from
+:math:`h`.
 
 ::
 
