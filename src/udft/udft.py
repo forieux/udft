@@ -1,5 +1,5 @@
 # UDFT: Unitary Discrete Fourier Transform (and related)
-# Copyright (C) 2021-2025 François Orieux <francois.orieux@universite-paris-saclay.fr>
+# Copyright (C) 2021-2026 François Orieux <francois.orieux@universite-paris-saclay.fr>
 
 # This is free and unencumbered software released into the public domain.
 #
