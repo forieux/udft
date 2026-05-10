@@ -126,8 +126,8 @@ def dftn(
 
     Notes
     -----
-    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
-    used, otherwise the namespace of the array's library is used.
+    For NumPy arrays, `scipy.fft` is used when available (enabling multithreading);
+    for other array types, the FFT is dispatched through the array library's namespace.
 
     """
     if not is_array(inarray):
@@ -168,8 +168,8 @@ def idftn(
     Notes
     -----
 
-    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
-    used, otherwise the namespace of the array's library is used.
+    For NumPy arrays, `scipy.fft` is used when available (enabling multithreading);
+    for other array types, the FFT is dispatched through the array library's namespace.
 
     """
     if not is_array(inarray):
@@ -205,8 +205,8 @@ def dft(inarray: Array) -> Array:
 
     Notes
     -----
-    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
-    used, otherwise the namespace of the array's library is used.
+    For NumPy arrays, `scipy.fft` is used when available (enabling multithreading);
+    for other array types, the FFT is dispatched through the array library's namespace.
 
     """
     return dftn(inarray, 1)
@@ -229,8 +229,8 @@ def idft(inarray: Array) -> Array:
 
     Notes
     -----
-    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
-    used, otherwise the namespace of the array's library is used.
+    For NumPy arrays, `scipy.fft` is used when available (enabling multithreading);
+    for other array types, the FFT is dispatched through the array library's namespace.
 
     """
     return idftn(inarray, 1)
@@ -253,8 +253,8 @@ def dft2(inarray: Array) -> Array:
 
     Notes
     -----
-    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
-    used, otherwise the namespace of the array's library is used.
+    For NumPy arrays, `scipy.fft` is used when available (enabling multithreading);
+    for other array types, the FFT is dispatched through the array library's namespace.
 
     """
     return dftn(inarray, 2)
@@ -277,8 +277,8 @@ def idft2(inarray: Array) -> Array:
 
     Notes
     -----
-    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
-    used, otherwise the namespace of the array's library is used.
+    For NumPy arrays, `scipy.fft` is used when available (enabling multithreading);
+    for other array types, the FFT is dispatched through the array library's namespace.
 
     """
     return idftn(inarray, 2)
@@ -307,8 +307,8 @@ def rdftn(
 
     Notes
     -----
-    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
-    used, otherwise the namespace of the array's library is used.
+    For NumPy arrays, `scipy.fft` is used when available (enabling multithreading);
+    for other array types, the FFT is dispatched through the array library's namespace.
 
     """
     if not is_array(inarray):
@@ -350,8 +350,8 @@ def irdftn(
 
     Notes
     -----
-    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
-    used, otherwise the namespace of the array's library is used.
+    For NumPy arrays, `scipy.fft` is used when available (enabling multithreading);
+    for other array types, the FFT is dispatched through the array library's namespace.
 
     """
     if not is_array(inarray):
@@ -393,8 +393,8 @@ def rdft(inarray: Array) -> Array:
 
     Notes
     -----
-    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
-    used, otherwise the namespace of the array's library is used.
+    For NumPy arrays, `scipy.fft` is used when available (enabling multithreading);
+    for other array types, the FFT is dispatched through the array library's namespace.
 
     """
     return rdftn(inarray, 1)
@@ -418,8 +418,8 @@ def rdft2(inarray: Array) -> Array:
 
     Notes
     -----
-    If `inarray` is a Numpy array, if available the multithreaded `scipy.fft` is
-    used, otherwise the namespace of the array's library is used.
+    For NumPy arrays, `scipy.fft` is used when available (enabling multithreading);
+    for other array types, the FFT is dispatched through the array library's namespace.
 
     """
     return rdftn(inarray, 2)
@@ -472,31 +472,35 @@ def ir2fr(
 
       1. Place the IR with zero filling on the target shape
 
-         ┌────────┬──────────────┐
-         │        │              │
-         │   IR   │              │
-         │        │              │
-         │        │              │
-         ├────────┘              │
-         │            0          │
-         │                       │
-         │                       │
-         │                       │
-         └───────────────────────┘
+         .. code-block:: text
+
+            ┌────────┬──────────────┐
+            │        │              │
+            │   IR   │              │
+            │        │              │
+            │        │              │
+            ├────────┘              │
+            │            0          │
+            │                       │
+            │                       │
+            │                       │
+            └───────────────────────┘
 
       2. Roll (circshift in Matlab) to move the origin at index 0 (DFT hypothesis)
 
-         ┌────────┬──────────────┐     ┌────┬─────────────┬────┐
-         │11112222│              │     │4444│             │3333│
-         │11112222│              │     │4444│             │3333│
-         │33334444│              │     ├────┘             └────┤
-         │33334444│              │     │                       │
-         ├────────┘   0          │ ->  │           0           │
-         │                       │     │                       │
-         │                       │     ├────┐             ┌────┤
-         │                       │     │2222│             │1111│
-         │                       │     │2222│             │1111│
-         └───────────────────────┘     └────┴─────────────┴────┘
+         .. code-block:: text
+
+            ┌────────┬──────────────┐     ┌────┬─────────────┬────┐
+            │11112222│              │     │4444│             │3333│
+            │11112222│              │     │4444│             │3333│
+            │33334444│              │     ├────┘             └────┤
+            │33334444│              │     │                       │
+            ├────────┘   0          │ ->  │           0           │
+            │                       │     │                       │
+            │                       │     ├────┐             ┌────┤
+            │                       │     │2222│             │1111│
+            │                       │     │2222│             │1111│
+            └───────────────────────┘     └────┴─────────────┴────┘
 
       3. Perform the DFT with 1/N normalisation on the last axes
 
