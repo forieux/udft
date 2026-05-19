@@ -28,8 +28,8 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://udft.readthedocs.io/en/stable/"
-documentation = "https://udft.readthedocs.io/en/stable/"
+homepage = "https://udft.readthedocs.io/"
+documentation = "https://udft.readthedocs.io/"
 repository = "https://github.com/forieux/udft/"
 issues = "https://github.com/forieux/udft/issues"
 changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
