@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [4.0.3] - 2026-06-02
+
+### Changed
+- Conforming to [SPEC0](https://scientific-python.org/specs/spec-0000/)
+
 ## [4.0.2] - 2026-05-10
 
 ### Fixed
