@@ -701,7 +701,7 @@ def laplacian(ndim: int, norm=False, like: Array | None = None) -> Array:
     imp = xp.zeros([3 for _ in range(ndim)])
     for dim in range(ndim):
         idx = tuple(
-            [slice(1, 2) for _ in range(ndim)]
+            [slice(1, 2) for _ in range(dim)]
             + [slice(None)]
             + [slice(1, 2) for _ in range(ndim - dim - 1)]
         )

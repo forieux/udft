@@ -670,7 +670,7 @@ wheels = [
 
 [[package]]
 name = "udft"
-version = "4.0.0"
+version = "4.0.2"
 source = { editable = "." }
 dependencies = [
     { name = "array-api-compat" },
@@ -696,8 +696,8 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "array-api-compat", specifier = ">=1.11.1" },
-    { name = "numpy", specifier = ">=2.2.3" },
-    { name = "scipy", marker = "extra == 'scipy'", specifier = ">=1.15.2" },
+    { name = "numpy", specifier = ">=2.0.0" },
+    { name = "scipy", marker = "extra == 'scipy'", specifier = ">=1.14.0" },
 ]
 provides-extras = ["scipy"]
 
