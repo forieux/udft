@@ -85,14 +85,7 @@ __all__ = [  # noqa: WPS410
 ]
 
 
-class ArrayLike(Protocol):
-    ndim: int
-    shape: tuple[int, ...]
-
-    def __getitem__(self, index: Any) -> Any: ...
-
-
-Array = TypeVar("Array", bound=ArrayLike)
+type Array = Any  # array API standard array — no stable cross-backend type yet
 
 
 def is_array(arr: Array) -> TypeGuard[Array]:
