@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [4.0.5] - 2026-10-15
+
+### Fixed
+- Correct normalisation in ir2fr
+- `fr2ir` cropped the first axes instead of the last ones, giving a wrong
+  output with a batch of frequency responses.
+
+### Added
+- `llms.txt` at the repository root, also served at the root of the documentation.
+- Agent skill `skills/udft/SKILL.md` and a Claude Code plugin marketplace
+  (`.claude-plugin/marketplace.json`) to install it.
+- `inshape` keyword in `fr2ir` to give the frequency grid shape, required with
+  `real=True` when the last axis of the grid is odd.
+
 ## [4.0.4] - 2026-06-25
 
 ### Fixed
@@ -22,7 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - readthedoc build
 - fix docstring for more clairity and fix html export
-
 
 ## [4.0.1] - 2026-05-09
 
