@@ -1,0 +1,56 @@
+# udft
+
+> Unitary (orthonormal) discrete Fourier transforms for Python, plus helpers for circulant convolution (impulse response ↔ frequency response). Single module, array-agnostic via the Array API standard (`array-api-compat`); NumPy is the reference backend and `scipy.fft` is used for multithreaded FFTs when installed. Python >= 3.12, public domain (Unlicense).
+
+Key facts for using the library correctly:
+
+- Install with `pip install udft` (or `udft[scipy]` for multithreaded FFT). Import with `import udft`; all public functions live at top level.
+- Every transform is unitary (`norm="ortho"`): Parseval holds (`‖x‖₂ = ‖dftn(x)‖₂`) and the zero frequency equals `sum(x) / sqrt(N)`. Do not mix with `numpy.fft` defaults, which are not normalized the same way.
+- Transforms always act on the **last** axes (C-order performance). `ndim` selects how many trailing axes; there is no `axes`/`axis` argument. Leading axes are batch axes.
+- Real transforms (`rdftn`, `rdft`, `rdft2`) return a last axis of length `N // 2 + 1`. There is a single real inverse, `irdftn(X, shape)`, and `shape` (output shape of the transformed trailing axes) is **required** because it cannot be inferred.
+- The array namespace is taken from the input: NumPy in → NumPy out, PyTorch in → PyTorch out. `diff_ir`, `laplacian` and `crandn` build new arrays and return NumPy unless `like=` is given; they rely on NumPy-specific functions, so treat them as NumPy-only.
+- For a circulant convolution `H x = h ⊛ x`: `H = F* Λ F`, with `F` = `rdftn`/`dftn`, `F*` = `irdftn`/`idftn`, and `Λ = ir2fr(h, shape)`. `ir2fr` zero-pads `h` to `shape`, rolls its origin (default: center, `h.shape[i] // 2`) to index 0, then applies the DFT; with `real=True` (default) the result matches `rdftn` output shape.
+- `hnorm(X, shape)` computes the l2 norm of a half-spectrum `X = rdftn(x)` (accounting for Hermitian symmetry); use `numpy.linalg.norm` for full spectra from `dftn`.
+- The API is intentionally minimal. For options it does not expose (padding, arbitrary axes, other norms), call the array library's `fft` module directly.
+
+Typical usage:
+
+```python
+import numpy as np
+import udft
+
+x = np.random.standard_normal((256, 256))
+h = np.ones((5, 5)) / 25                    # impulse response, origin at its center
+
+X = udft.rdftn(x)                           # shape (256, 129), unitary
+fr = udft.ir2fr(h, x.shape)                 # frequency response, shape (256, 129)
+y = udft.irdftn(fr * X, x.shape)            # circular convolution h ⊛ x, shape (256, 256)
+
+# Quadratic regularized deconvolution (Wiener / Tikhonov) in Fourier space
+lap = udft.ir2fr(udft.laplacian(2), x.shape)
+x_hat = udft.irdftn(np.conj(fr) * udft.rdftn(y) / (np.abs(fr) ** 2 + 0.1 * np.abs(lap) ** 2), x.shape)
+
+# Batch: transform only the last 2 axes of a stack of images
+stack = np.random.standard_normal((10, 64, 64))
+S = udft.dftn(stack, ndim=2)                # == udft.dft2(stack)
+```
+
+## API reference
+
+- [Source module `udft.py`](https://raw.githubusercontent.com/forieux/udft/main/src/udft/udft.py): the whole library in one file, with full NumPy-style docstrings for every function; the most precise reference.
+- [API documentation](https://udft.readthedocs.io/en/stable/udft.html): rendered reference for all public functions, grouped below.
+- Complex transforms: `dftn(x, ndim=None)`, `idftn(x, ndim=None)`, `dft(x)`, `idft(x)` (last axis), `dft2(x)`, `idft2(x)` (last 2 axes). Output has the input shape.
+- Real transforms: `rdftn(x, ndim=None)`, `rdft(x)`, `rdft2(x)`; inverse `irdftn(X, shape)`.
+- Convolution helpers: `ir2fr(imp_resp, shape, origin=None, real=True)`, `fr2ir(freq_resp, shape, origin=None, real=True)`, `diff_ir(ndim=1, axis=0, norm=True, like=None)` (first-order difference), `laplacian(ndim, norm=False, like=None)`.
+- Other: `hnorm(X, inshape)` (Hermitian l2 norm), `crandn(shape, like=None)` (unitary DFT of real white Gaussian noise, i.e. complex normal with variance 1).
+
+## Docs
+
+- [Documentation home](https://udft.readthedocs.io/en/stable/index.html): mathematical background (unitary DFT, Parseval, `H = F* Λ F`) and installation.
+- [README](https://raw.githubusercontent.com/forieux/udft/main/README.md): project overview.
+
+## Optional
+
+- [Changelog](https://raw.githubusercontent.com/forieux/udft/main/CHANGELOG.md): version history; v4.0.0 dropped pyfftw and the `lib=` keyword in favor of array-api-compat.
+- [Repository](https://github.com/forieux/udft): source code and issue tracker.
+- [Array API standard](https://data-apis.org/array-api/latest/): the array interface udft relies on to support NumPy, PyTorch, CuPy, etc.
