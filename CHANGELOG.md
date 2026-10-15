@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [4.1.0] - 2026-10-15
+### Fixed
+Correct version because of SemVer and work on fr2ir
+
 ## [4.0.5] - 2026-10-15
 
 ### Fixed
