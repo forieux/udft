@@ -1,0 +1,32 @@
+{
+  "name": "udft",
+  "description": "Agent skill for udft, unitary discrete Fourier transforms and circulant convolution in Python",
+  "owner": {
+    "name": "François Orieux",
+    "url": "https://pro.orieux.fr/"
+  },
+  "plugins": [
+    {
+      "name": "udft",
+      "source": ".",
+      "description": "Skill to write correct code with the udft library: unitary DFTs, FFT-based convolution and deconvolution",
+      "author": {
+        "name": "François Orieux"
+      },
+      "homepage": "https://udft.readthedocs.io/",
+      "repository": "https://github.com/forieux/udft",
+      "license": "Unlicense",
+      "keywords": [
+        "fft",
+        "dft",
+        "convolution",
+        "deconvolution",
+        "python"
+      ],
+      "category": "scientific-computing",
+      "skills": [
+        "./skills/udft"
+      ]
+    }
+  ]
+}
