@@ -615,7 +615,7 @@ def fr2ir(
         )
 
     if origin is None:
-        origin = [int(xp.floor(length / 2)) for length in shape]
+        origin = [int(xp.floor(length // 2)) for length in shape]
 
     if len(origin) != ndim:
         raise ValueError("`origin` and `shape` must have the same length")
