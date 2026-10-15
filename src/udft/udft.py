@@ -552,7 +552,7 @@ def ir2fr(
         tf = xp.fft.rfftn(
             irpadded,
             axes=list(range(imp_resp.ndim - ndim, imp_resp.ndim)),
-            norm="forward",
+            norm="backward",
         )
         return np.ascontiguousarray(tf, like=imp_resp)  # type: ignore
     tf = xp.fft.fftn(
@@ -568,6 +568,7 @@ def fr2ir(
     shape: tuple[int, ...],
     origin: Sequence[int] | None = None,
     real: bool = True,
+    inshape: tuple[int, ...] | None = None,
 ) -> Array:
     """Return the impulse responses from frequency responses.
 
@@ -591,6 +592,12 @@ def fr2ir(
         default (shape[i] // 2).
     real : boolean, optional
        If True, imp_resp is supposed real, and real DFT is used.
+    inshape : tuple of int, optional
+       The shape of the full frequency grid on the last `len(shape)` axes, that
+       is the `shape` given to `ir2fr`. Only used if `real` is True, where the
+       length of the last axis can't be guessed from `freq_resp`: it is
+       `2 * (M - 1)` by default, with `M` the length of the last axis of
+       `freq_resp`, and is therefore required if that length is odd.
 
     Returns
     -------
@@ -617,27 +624,34 @@ def fr2ir(
         )
 
     if origin is None:
-        origin = [int(xp.floor(length // 2)) for length in shape]
+        origin = [length // 2 for length in shape]
 
     if len(origin) != ndim:
         raise ValueError("`origin` and `shape` must have the same length")
 
+    if inshape is not None and len(inshape) != ndim:
+        raise ValueError("`inshape` and `shape` must have the same length")
+
     if real:
         irpadded = xp.fft.irfftn(
-            freq_resp, axes=list(range(freq_resp.ndim - ndim, freq_resp.ndim))
+            freq_resp,
+            s=inshape,
+            axes=list(range(freq_resp.ndim - ndim, freq_resp.ndim)),
+            norm="backward",
         )
     else:
         irpadded = xp.fft.ifftn(
-            freq_resp, axes=list(range(freq_resp.ndim - ndim, freq_resp.ndim))
+            freq_resp,
+            axes=list(range(freq_resp.ndim - ndim, freq_resp.ndim)),
+            norm="backward",
         )
 
     for axe, shift in enumerate(origin):
         irpadded = xp.roll(irpadded, shift, freq_resp.ndim - ndim + axe)
 
     return np.ascontiguousarray(
-        a=irpadded[tuple(slice(0, length) for length in shape)],
+        a=irpadded[(..., *(slice(0, length) for length in shape))],
         like=freq_resp,
-        norm="backward",
     )  # ty:ignore[no-matching-overload]
 
 
