@@ -70,6 +70,25 @@ For multithreaded FFT on NumPy arrays, install the optional SciPy dependency:
 
 The project follows `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
 
+Using udft with AI agents
+=========================
+
+- `llms.txt <llms.txt>`__ follows the `llms.txt <https://llmstxt.org/>`__
+  proposal and gives agents a map of this documentation.
+- `skills/udft <https://github.com/forieux/udft/tree/main/skills/udft>`_ is an
+  `Agent Skill <https://agentskills.io>`_ that teaches agents the conventions
+  of udft (unitary normalization, last axes, ``irdftn`` shape, ``ir2fr``
+  convolution model). In Claude Code, install it from the repository, which is
+  also a plugin marketplace:
+
+  .. code-block:: text
+
+     /plugin install udft --marketplace forieux/udft
+
+  or, in two steps, ``/plugin marketplace add forieux/udft`` then ``/plugin
+  install udft@udft``. For other agents, copy the ``skills/udft`` directory
+  into their skills directory.
+
 License
 =======
 

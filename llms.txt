@@ -41,13 +41,15 @@ S = udft.dftn(stack, ndim=2)                # == udft.dft2(stack)
 - [API documentation](https://udft.readthedocs.io/en/stable/udft.html): rendered reference for all public functions, grouped below.
 - Complex transforms: `dftn(x, ndim=None)`, `idftn(x, ndim=None)`, `dft(x)`, `idft(x)` (last axis), `dft2(x)`, `idft2(x)` (last 2 axes). Output has the input shape.
 - Real transforms: `rdftn(x, ndim=None)`, `rdft(x)`, `rdft2(x)`; inverse `irdftn(X, shape)`.
-- Convolution helpers: `ir2fr(imp_resp, shape, origin=None, real=True)`, `fr2ir(freq_resp, shape, origin=None, real=True)`, `diff_ir(ndim=1, axis=0, norm=True, like=None)` (first-order difference), `laplacian(ndim, norm=False, like=None)`.
+- Convolution helpers: `ir2fr(imp_resp, shape, origin=None, real=True)`, `fr2ir(freq_resp, shape, origin=None, real=True, inshape=None)` (pass `inshape`, the grid shape given to `ir2fr`, when its last axis may be odd), `diff_ir(ndim=1, axis=0, norm=True, like=None)` (first-order difference), `laplacian(ndim, norm=False, like=None)`.
 - Other: `hnorm(X, inshape)` (Hermitian l2 norm), `crandn(shape, like=None)` (unitary DFT of real white Gaussian noise, i.e. complex normal with variance 1).
 
 ## Docs
 
 - [Documentation home](https://udft.readthedocs.io/en/stable/index.html): mathematical background (unitary DFT, Parseval, `H = F* Λ F`) and installation.
 - [README](https://raw.githubusercontent.com/forieux/udft/main/README.md): project overview.
+
+- [Agent skill `SKILL.md`](https://raw.githubusercontent.com/forieux/udft/main/skills/udft/SKILL.md): conventions, convolution model, recipes and pitfalls for writing code with udft. Install in Claude Code with `/plugin install udft --marketplace forieux/udft`.
 
 ## Optional
 
