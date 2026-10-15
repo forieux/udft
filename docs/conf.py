@@ -97,6 +97,9 @@ html_theme = "sphinx_rtd_theme"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
+# Serve llms.txt (https://llmstxt.org/) at the root of the documentation site
+html_extra_path = ["../llms.txt"]
+
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #
