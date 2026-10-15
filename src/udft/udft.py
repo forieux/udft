@@ -556,7 +556,9 @@ def ir2fr(
         )
         return np.ascontiguousarray(tf, like=imp_resp)  # type: ignore
     tf = xp.fft.fftn(
-        irpadded, axes=list(range(imp_resp.ndim - ndim, imp_resp.ndim)), norm="forward"
+        irpadded,
+        axes=list(range(imp_resp.ndim - ndim, imp_resp.ndim)),
+        norm="backward",
     )
     return np.ascontiguousarray(tf, like=imp_resp)  # type: ignore
 
@@ -635,6 +637,7 @@ def fr2ir(
     return np.ascontiguousarray(
         a=irpadded[tuple(slice(0, length) for length in shape)],
         like=freq_resp,
+        norm="backward",
     )  # ty:ignore[no-matching-overload]
 
 
