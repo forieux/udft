@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.
 #
@@ -21,7 +20,6 @@ sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information -----------------------------------------------------
 
-import sphinx_rtd_theme
 
 project = "UDFT"
 copyright = "2021—2026, François Orieux"

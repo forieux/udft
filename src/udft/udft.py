@@ -51,37 +51,38 @@ array library.
 
 """
 
-from typing import Optional
-from types import ModuleType
-from typing import TypeVar, Protocol, TypeGuard, Any
 from collections.abc import Sequence
+from types import ModuleType
+from typing import Any, TypeGuard
 
 import array_api_compat
 from array_api_compat import numpy as np
 
+spfft: ModuleType | None
+
 try:
     from scipy import fft as spfft
 except ImportError:
-    spfft: Optional[ModuleType] = None
+    spfft = None
 
 
 __all__ = [  # noqa: WPS410
-    "dftn",
-    "idftn",
+    "crandn",
     "dft",
-    "idft",
     "dft2",
+    "dftn",
+    "diff_ir",
+    "fr2ir",
+    "hnorm",
+    "idft",
     "idft2",
-    "rdftn",
+    "idftn",
+    "ir2fr",
     "irdftn",
+    "laplacian",
     "rdft",
     "rdft2",
-    "hnorm",
-    "crandn",
-    "ir2fr",
-    "fr2ir",
-    "diff_ir",
-    "laplacian",
+    "rdftn",
 ]
 
 
@@ -554,13 +555,13 @@ def ir2fr(
             axes=list(range(imp_resp.ndim - ndim, imp_resp.ndim)),
             norm="backward",
         )
-        return np.ascontiguousarray(tf, like=imp_resp)  # type: ignore
+        return np.ascontiguousarray(tf, like=imp_resp)
     tf = xp.fft.fftn(
         irpadded,
         axes=list(range(imp_resp.ndim - ndim, imp_resp.ndim)),
         norm="backward",
     )
-    return np.ascontiguousarray(tf, like=imp_resp)  # type: ignore
+    return np.ascontiguousarray(tf, like=imp_resp)
 
 
 def fr2ir(
@@ -652,7 +653,7 @@ def fr2ir(
     return np.ascontiguousarray(
         a=irpadded[(..., *(slice(0, length) for length in shape))],
         like=freq_resp,
-    )  # ty:ignore[no-matching-overload]
+    )
 
 
 def diff_ir(
