@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Tests (Python ${{ matrix.python }}, ${{ matrix.extras }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.12", "3.13", "3.14"]
+        # Without scipy, NumPy transforms go through `numpy.fft` instead of `scipy.fft`
+        extras: ["scipy", "no scipy"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - name: Install
+        run: uv sync --locked ${{ matrix.extras == 'scipy' && '--all-extras' || '' }}
+      - name: Test
+        run: uv run --no-sync pytest
+
+  typecheck:
+    name: Type check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - name: Install
+        run: uv sync --locked --all-extras
+      - name: basedpyright
+        run: uv run --no-sync basedpyright src
