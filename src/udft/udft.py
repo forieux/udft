@@ -756,10 +756,10 @@ def hnorm(inarray: Array, inshape: tuple[int, ...]) -> Array:
     axis2 = tuple(range(-(len(inshape) - 1), 0))
 
     norm = 2 * xp.sum(xp.abs(inarray) ** 2, axis=axis)
-    norm -= xp.sum(xp.abs(inarray[..., 0]) ** 2, axis=axis2)
+    norm = norm - xp.sum(xp.abs(inarray[..., 0]) ** 2, axis=axis2)
 
     if inshape[-1] % 2 == 0:
-        norm -= xp.sum(xp.abs(inarray[..., -1]) ** 2, axis=axis2, keepdims=True)
+        norm = norm - xp.sum(xp.abs(inarray[..., -1]) ** 2, axis=axis2)
 
     return xp.sqrt(norm)
 
