@@ -424,7 +424,7 @@ def ir2fr(
     imp_resp: Array,
     shape: tuple[int, ...],
     origin: Sequence[int] | None = None,
-    real: bool = True,
+    onesided: bool = True,
 ) -> Array:
     """Compute the frequency response from impulse responses.
 
@@ -449,14 +449,17 @@ def ir2fr(
     origin : tuple of int, optional
         The index of the origin (0 coordinate) of the impulse response. The
         center of the array by default (`shape[i] // 2`).
-    real : boolean, optional
-        If True, `imp_resp` is supposed real, and real DFT is used.
+    onesided : boolean, optional
+        If True, return only the half plane of the last axis with the real DFT
+        (`rfftn`), to use with `rdftn` and `irdftn`. `imp_resp` must then be
+        real. If False, return the full plane with the DFT (`fftn`), to use with
+        `dftn` and `idftn`, for real or complex `imp_resp`.
 
     Returns
     -------
     out : array-like
       The frequency responses of shape `shape` on the last `len(shape)`
-      dimensions. If `real` is `True`, the last dimension as length `N//2+1`.
+      dimensions. If `onesided` is `True`, the last dimension as length `N//2+1`.
 
     Notes
     -----
@@ -519,6 +522,11 @@ def ir2fr(
     if len(origin) != ndim:
         raise ValueError("`origin` and `shape` must have the same length")
 
+    if onesided and xp.isdtype(imp_resp.dtype, "complex floating"):
+        raise ValueError(
+            "`imp_resp` is complex: use `onesided=False`, or pass its real part"
+        )
+
     # Place the IR at the beginning of irpadded
     # ┌────────┬──────────────┐
     # │        │              │
@@ -564,7 +572,7 @@ def ir2fr(
     irpadded = xp.roll(irpadded, shift=tuple(-shift for shift in origin), axis=axes)
 
     # Perform the DFT on the last axes
-    if real:
+    if onesided:
         return xp.fft.rfftn(irpadded, axes=axes, norm="backward")
     return xp.fft.fftn(irpadded, axes=axes, norm="backward")
 
@@ -573,7 +581,7 @@ def fr2ir(
     freq_resp: Array,
     shape: tuple[int, ...],
     origin: Sequence[int] | None = None,
-    real: bool = True,
+    onesided: bool = True,
     inshape: tuple[int, ...] | None = None,
 ) -> Array:
     """Return the impulse responses from frequency responses.
@@ -596,11 +604,14 @@ def fr2ir(
     origin : tuple of int, optional
         The index of the origin (0, 0) of output the impulse response. The center by
         default (shape[i] // 2).
-    real : boolean, optional
-       If True, imp_resp is supposed real, and real DFT is used.
+    onesided : boolean, optional
+       If True, `freq_resp` is the half plane of the last axis returned by
+       `ir2fr` with `onesided=True`, and the real IDFT (`irfftn`) is used,
+       giving real impulse responses. If False, `freq_resp` is the full plane
+       and the IDFT (`ifftn`) is used.
     inshape : tuple of int, optional
        The shape of the full frequency grid on the last `len(shape)` axes, that
-       is the `shape` given to `ir2fr`. Only used if `real` is True, where the
+       is the `shape` given to `ir2fr`. Only used if `onesided` is True, where the
        length of the last axis can't be guessed from `freq_resp`: it is
        `2 * (M - 1)` by default, with `M` the length of the last axis of
        `freq_resp`, and is therefore required if that length is odd.
@@ -640,7 +651,7 @@ def fr2ir(
 
     axes = tuple(range(-ndim, 0))
 
-    if real:
+    if onesided:
         irpadded = xp.fft.irfftn(freq_resp, s=inshape, axes=axes, norm="backward")
     else:
         irpadded = xp.fft.ifftn(freq_resp, axes=axes, norm="backward")

@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+- `ir2fr` creates its padding on the device and with the dtype of `imp_resp`:
+  an impulse response on GPU gives a frequency response on the same GPU,
+  float32 gives complex64 (complex128 before with NumPy), and a complex
+  impulse response keeps its imaginary part with `onesided=False`.
+- `ir2fr` and `fr2ir` no longer use `numpy.ascontiguousarray(like=)`, which
+  only works with libraries implementing `__array_function__` (not PyTorch).
+  `ir2fr` supports the immutable arrays of JAX.
+- `hnorm` returns a scalar instead of a `(1,)` array when the last axis is
+  even.
+- `crandn(like=x)` failed for `x` with more than one element.
+- `diff_ir`, `laplacian` and `crandn` with `like=`.
+
+### Changed
+- **Breaking:** the `real` keyword of `ir2fr` and `fr2ir` is renamed
+  `onesided`. It selects the half plane (`rfftn`/`irfftn`, to use with
+  `rdftn`/`irdftn`) or the full plane (`fftn`/`ifftn`), not the nature of
+  the impulse response.
+- `ir2fr` raises `ValueError` for a complex `imp_resp` with `onesided=True`
+  (the imaginary part was silently discarded before).
+- `diff_ir(norm=False)` returns floats instead of integers.
+- `crandn(like=x)` with a PyTorch tensor draws with `torch.randn`.
+
 ## [4.1.0] - 2026-10-15
 ### Fixed
 Correct version because of SemVer and work on fr2ir
