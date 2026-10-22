@@ -97,7 +97,8 @@ def is_array(arr: Array) -> TypeGuard[Array]:
 
 
 _not_array_message = (
-    "`inarray` must be a compatible with Array API Standard (eg. numpy, pytorch, ...)"
+    "The input array must be compatible with the Array API Standard "
+    "(eg. numpy, pytorch, ...)"
 )
 
 
@@ -727,7 +728,7 @@ def diff_ir(
     return _asarray_like(imp, like)
 
 
-def laplacian(ndim: int, norm=False, like: Array | None = None) -> Array:
+def laplacian(ndim: int, norm: bool = False, like: Array | None = None) -> Array:
     """Return the Laplacian impulse response.
 
     The second-order difference in each axes.
