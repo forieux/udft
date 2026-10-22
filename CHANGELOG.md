@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `diff_ir`, `laplacian` and `crandn` with `like=`.
 - `fr2ir` raises `ValueError` when `shape` exceeds the frequency grid.
 - `laplacian` raises `ValueError` for `ndim <= 0`, like `diff_ir`.
+- `diff_ir` accepts a negative `axis` (`-ndim <= axis < ndim`) and raises
+  `ValueError` out of range, instead of an `IndexError`.
 - Docstring of `ir2fr`.
 - Clearer error message when `ndim` exceeds the number of axes in `dftn`,
   `idftn` and `rdftn`.

@@ -698,7 +698,8 @@ def diff_ir(
     ndim : int, optional
         The number of dimensions of the array on which the diff will apply.
     axis : int, optional
-        The axis (dimension) where the diff operates.
+        The axis (dimension) where the diff operates. Negative values count
+        from the last axis.
     norm: bool, optional
         The output is normalized by :math:`\\sum_i |h_i|`.
     like : array-like, optional
@@ -712,8 +713,8 @@ def diff_ir(
     """
     if ndim <= 0:
         raise ValueError("The number of dimensions `ndim` must respect `ndim > 0`.")
-    if axis >= ndim:
-        raise ValueError("The `axis` argument must respect `0 <= axis < ndim`.")
+    if not -ndim <= axis < ndim:
+        raise ValueError("The `axis` argument must respect `-ndim <= axis < ndim`.")
 
     shape = ndim * [1]
     shape[axis] = 3
