@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `laplacian` raises `ValueError` for `ndim <= 0`, like `diff_ir`.
 - `diff_ir` accepts a negative `axis` (`-ndim <= axis < ndim`) and raises
   `ValueError` out of range, instead of an `IndexError`.
+- `ir2fr`, `fr2ir` and `hnorm` raise a clear `ValueError` when `shape` (or
+  `inshape`) is empty or longer than the number of axes of the input.
 - Docstring of `ir2fr`.
 - Clearer error message when `ndim` exceeds the number of axes in `dftn`,
   `idftn` and `rdftn`.

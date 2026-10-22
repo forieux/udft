@@ -516,9 +516,10 @@ def ir2fr(
     xp = array_api_compat.array_namespace(imp_resp)
     ndim = len(shape)
 
-    if ndim > imp_resp.ndim:
+    if ndim < 1 or ndim > imp_resp.ndim:
         raise ValueError(
-            f"length ({ndim}) of `shape` must be inferior or equal to `imp_resp.ndim` ({imp_resp.ndim})"
+            f"`shape` must respect `1 <= len(shape) <= imp_resp.ndim` "
+            f"(got {ndim} and {imp_resp.ndim})"
         )
 
     if origin is None:
@@ -640,9 +641,10 @@ def fr2ir(
 
     ndim = len(shape)
 
-    if ndim > freq_resp.ndim:
+    if ndim < 1 or ndim > freq_resp.ndim:
         raise ValueError(
-            "length of `shape` must be inferior or equal to `freq_resp.ndim`"
+            f"`shape` must respect `1 <= len(shape) <= freq_resp.ndim` "
+            f"(got {ndim} and {freq_resp.ndim})"
         )
 
     if origin is None:
@@ -791,6 +793,12 @@ def hnorm(inarray: Array, inshape: tuple[int, ...]) -> Array:
         raise ValueError(_not_array_message)
 
     xp = array_api_compat.array_namespace(inarray)
+
+    if len(inshape) < 1 or len(inshape) > inarray.ndim:
+        raise ValueError(
+            f"`inshape` must respect `1 <= len(inshape) <= inarray.ndim` "
+            f"(got {len(inshape)} and {inarray.ndim})"
+        )
 
     axis = tuple(range(-len(inshape), 0))
     axis2 = tuple(range(-(len(inshape) - 1), 0))
