@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Fixed
+- `dftn`, `idftn`, `rdftn`, `irdftn` (and their 1D/2D shortcuts) failed with
+  PyTorch, which requires a tuple of axes, not a `range`.
 - `ir2fr` creates its padding on the device and with the dtype of `imp_resp`:
   an impulse response on GPU gives a frequency response on the same GPU,
   float32 gives complex64 (complex128 before with NumPy), and a complex

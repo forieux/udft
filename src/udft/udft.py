@@ -136,9 +136,11 @@ def dftn(
         raise ValueError("`ndim` must be >= 1.")
 
     if array_api_compat.is_numpy_array(inarray) and spfft:
-        return spfft.fftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)
+        return spfft.fftn(
+            inarray, axes=tuple(range(-ndim, 0)), norm="ortho", workers=-1
+        )
 
-    return xp.fft.fftn(inarray, axes=range(-ndim, 0), norm="ortho")
+    return xp.fft.fftn(inarray, axes=tuple(range(-ndim, 0)), norm="ortho")
 
 
 def idftn(
@@ -178,9 +180,11 @@ def idftn(
         raise ValueError("`ndim` must be >= 1.")
 
     if array_api_compat.is_numpy_array(inarray) and spfft:
-        return spfft.ifftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)
+        return spfft.ifftn(
+            inarray, axes=tuple(range(-ndim, 0)), norm="ortho", workers=-1
+        )
 
-    return xp.fft.ifftn(inarray, axes=range(-ndim, 0), norm="ortho")
+    return xp.fft.ifftn(inarray, axes=tuple(range(-ndim, 0)), norm="ortho")
 
 
 def dft(inarray: Array) -> Array:
@@ -317,9 +321,11 @@ def rdftn(
         raise ValueError("`ndim` must be >= 1.")
 
     if array_api_compat.is_numpy_array(inarray) and spfft:
-        return spfft.rfftn(inarray, axes=range(-ndim, 0), norm="ortho", workers=-1)
+        return spfft.rfftn(
+            inarray, axes=tuple(range(-ndim, 0)), norm="ortho", workers=-1
+        )
 
-    return xp.fft.rfftn(inarray, axes=range(-ndim, 0), norm="ortho")
+    return xp.fft.rfftn(inarray, axes=tuple(range(-ndim, 0)), norm="ortho")
 
 
 def irdftn(
@@ -362,12 +368,12 @@ def irdftn(
         return spfft.irfftn(
             inarray,
             s=shape,
-            axes=range(-ndim, 0),
+            axes=tuple(range(-ndim, 0)),
             norm="ortho",
             workers=-1,
         )
 
-    return xp.fft.irfftn(inarray, s=shape, axes=range(-ndim, 0), norm="ortho")
+    return xp.fft.irfftn(inarray, s=shape, axes=tuple(range(-ndim, 0)), norm="ortho")
 
 
 def rdft(inarray: Array) -> Array:
