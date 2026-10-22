@@ -31,18 +31,20 @@ of working around udft.
    length `N // 2 + 1`. The only real inverse is `irdftn(X, shape)`, and
    `shape` is **required**: it gives the output size of the transformed
    trailing axes (`len(shape)` is the number of transformed axes).
-4. **Array namespace follows the input.** NumPy in gives NumPy out, PyTorch in
-   gives PyTorch out (through `array-api-compat`). `laplacian`, `diff_ir` and
-   `crandn` create arrays and return NumPy unless `like=` is given; they rely on
-   NumPy-specific functions, so treat them as NumPy-only. NumPy is the backend
-   covered by the tests.
+4. **Array namespace, device and precision follow the input.** NumPy in gives
+   NumPy out, a PyTorch tensor on GPU gives a PyTorch tensor on the same GPU
+   (through `array-api-compat`), float32 gives complex64. `laplacian`,
+   `diff_ir` and `crandn` create arrays: NumPy by default, or with the
+   namespace, device and dtype of `like=` (e.g. `udft.laplacian(2, like=x)`).
+   udft never moves arrays between devices. NumPy is the backend covered by
+   the tests.
 
 ## Convolution model
 
 For a circular convolution `y = H x`, `H = F* Λ F` where `F` is `rdftn` (or
 `dftn`), `F*` is `irdftn` (or `idftn`) and `Λ = ir2fr(h, shape)`.
 
-`ir2fr(imp_resp, shape, origin=None, real=True)`:
+`ir2fr(imp_resp, shape, origin=None, onesided=True)`:
 
 - zero-pads `imp_resp` to `shape` on its trailing axes, then rolls it so that
   `origin` lands at index 0, then takes the DFT **without normalization**
@@ -51,14 +53,15 @@ For a circular convolution `y = H x`, `H = F* Λ F` where `F` is `rdftn` (or
   per axis. For an even-sized kernel, pass `origin` explicitly;
 - the result is `y[n] = Σᵢ h[i] · x[(n − (i − origin)) mod N]`, a convolution
   with the kernel centered on `origin`;
-- `real=True` (default) returns the half spectrum matching `rdftn`; use
-  `real=False` with `dftn`/`idftn` (complex kernel or full spectrum);
+- `onesided=True` (default) returns the half spectrum matching `rdftn` and
+  requires a real kernel (a complex one raises `ValueError`); use
+  `onesided=False` with `dftn`/`idftn`, for a real or complex kernel;
 - `imp_resp` may have more axes than `len(shape)`: the extra leading axes are
   kept, giving a batch of frequency responses that broadcasts against data.
 
-`fr2ir(freq_resp, shape, origin=None, real=True, inshape=None)` is the inverse:
+`fr2ir(freq_resp, shape, origin=None, onesided=True, inshape=None)` is the inverse:
 it returns the impulse response of size `shape` with its origin at
-`shape[i] // 2`. With `real=True`, pass `inshape` (the `shape` given to
+`shape[i] // 2`. With `onesided=True`, pass `inshape` (the `shape` given to
 `ir2fr`) whenever the last axis of the grid may be odd: a half spectrum alone
 does not tell its original length.
 
@@ -102,15 +105,18 @@ normal sample directly (variance 1, no Hermitian symmetry enforced).
 
 ## Pitfalls
 
-- Forgetting `shape` in `irdftn` (or `inshape` in `fr2ir` with `real=True`),
+- Forgetting `shape` in `irdftn` (or `inshape` in `fr2ir` with `onesided=True`),
   or passing the half-spectrum shape instead of the original data shape.
 - Passing an axis index as `ndim`: it is a *count* of trailing axes.
 - Using `numpy.linalg.norm` on a half spectrum from `rdftn`: use `hnorm`.
   `numpy.linalg.norm` is correct only on full spectra from `dftn`.
 - Multiplying `ir2fr` output by an extra `sqrt(N)` or `N`: with unitary `F`,
   `irdftn(ir2fr(h, s) * rdftn(x), s)` is already the convolution.
-- `ir2fr` creates its padding with the namespace default float dtype; cast the
-  result if the computation must stay in `float32`/`complex64`.
+- Mixing devices: `ir2fr` returns the frequency response on the device and
+  with the precision of the impulse response. Build `h` with the device and
+  dtype of the data (`like=x` for `laplacian`/`diff_ir`) before multiplying
+  with `rdftn(x)`, otherwise the array library raises a device error or
+  promotes `complex64` to `complex128`.
 
 ## Reference
 
