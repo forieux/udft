@@ -51,6 +51,7 @@ array library.
 
 """
 
+import math
 from collections.abc import Sequence
 from types import ModuleType
 from typing import Any, TypeGuard
@@ -652,6 +653,19 @@ def fr2ir(
     )
 
 
+def _asarray_like(arr: Array, like: Array | None) -> Array:
+    """Return NumPy `arr` with namespace and device of `like`.
+
+    The dtype of `like` is used if real floating. Return `arr` if `like` is None.
+    """
+    if like is None:
+        return arr
+
+    xp = array_api_compat.array_namespace(like)
+    dtype = like.dtype if xp.isdtype(like.dtype, "real floating") else None
+    return xp.asarray(arr, dtype=dtype, device=array_api_compat.device(like))
+
+
 def diff_ir(
     ndim: int = 1, axis: int = 0, norm: bool = True, like: Array | None = None
 ) -> Array:
@@ -665,14 +679,15 @@ def diff_ir(
         The axis (dimension) where the diff operates.
     norm: bool, optional
         The output is normalized by :math:`\\sum_i |h_i|`.
+    like : array-like, optional
+        Return an array with the namespace and device of `like`, and its dtype
+        if real floating. NumPy by default.
 
     Returns
     -------
     out : array_like
         The impulse response
     """
-    xp = array_api_compat.array_namespace(like) if like is not None else np
-
     if ndim <= 0:
         raise ValueError("The number of dimensions `ndim` must respect `ndim > 0`.")
     if axis >= ndim:
@@ -680,10 +695,11 @@ def diff_ir(
 
     shape = ndim * [1]
     shape[axis] = 3
+    imp = np.reshape(np.asarray([0.0, -1.0, 1.0]), tuple(shape))
     if norm:
-        return xp.reshape(xp.array([0, -1, 1], ndmin=ndim) / 2, shape)
+        imp = imp / 2
 
-    return xp.reshape(xp.array([0, -1, 1], ndmin=ndim), shape)
+    return _asarray_like(imp, like)
 
 
 def laplacian(ndim: int, norm=False, like: Array | None = None) -> Array:
@@ -697,29 +713,25 @@ def laplacian(ndim: int, norm=False, like: Array | None = None) -> Array:
         The dimension of the Laplacian.
     norm: bool, optional
         The output is normalized by :math:`\\sum_i |h_i|`.
+    like : array-like, optional
+        Return an array with the namespace and device of `like`, and its dtype
+        if real floating. NumPy by default.
 
     Returns
     -------
     out : array_like
         The impulse response
     """
-    xp = array_api_compat.array_namespace(like) if like is not None else np
-
-    imp = xp.zeros([3 for _ in range(ndim)])
+    imp = np.zeros((3,) * ndim)
+    center = (1,) * ndim
     for dim in range(ndim):
-        idx = tuple(
-            [slice(1, 2) for _ in range(dim)]
-            + [slice(None)]
-            + [slice(1, 2) for _ in range(ndim - dim - 1)]
-        )
-        imp[idx] = xp.array([-1.0, 0, -1.0]).reshape(
-            [-1 if axe == dim else 1 for axe in range(ndim)]
-        )
-    imp[tuple([slice(1, 2) for _ in range(ndim)])] = 2.0 * ndim
+        for side in (0, 2):
+            imp[center[:dim] + (side,) + center[dim + 1 :]] = -1.0
+    imp[center] = 2.0 * ndim
     if norm:
-        return imp / xp.sum(xp.abs(imp))
+        imp = imp / np.sum(np.abs(imp))
 
-    return imp
+    return _asarray_like(imp, like)
 
 
 def hnorm(inarray: Array, inshape: tuple[int, ...]) -> Array:
@@ -772,12 +784,38 @@ def crandn(shape: tuple[int, ...], like: Array | None = None) -> Array:
     supposed to be half of the frequency plane already or the full plane if the
     hermitian property is not present.
 
+    Parameters
+    ----------
+    shape : tuple of int
+        The shape of the output.
+    like : array-like, optional
+        Return an array with the namespace and device of `like`, complex64 if
+        `like` is float32 or complex64, complex128 otherwise. NumPy by default.
     """
-    xp = array_api_compat.array_namespace(like) if like else np
+    if like is None:
+        return math.sqrt(0.5) * (
+            np.random.standard_normal(shape) + 1j * np.random.standard_normal(shape)
+        )
 
-    return xp.sqrt(0.5) * (
-        xp.random.standard_normal(shape) + 1j * xp.random.standard_normal(shape)
+    xp = array_api_compat.array_namespace(like)
+    device = array_api_compat.device(like)
+    # complex64 for float32 or complex64 `like`, complex128 otherwise
+    if xp.isdtype(like.dtype, ("real floating", "complex floating")):
+        dtype = xp.result_type(like.dtype, xp.complex64)
+    else:
+        dtype = xp.complex128
+
+    if array_api_compat.is_torch_array(like):
+        # For complex dtype, torch draws real and imaginary parts of variance 1/2
+        return xp.randn(shape, dtype=dtype, device=device)
+
+    # Draw on device with numpy-like random module (numpy, cupy), else with numpy
+    # then transfer (eg. JAX that has no global random state)
+    rnd = xp.random if hasattr(xp, "random") else np.random
+    arr = math.sqrt(0.5) * (
+        rnd.standard_normal(shape) + 1j * rnd.standard_normal(shape)
     )
+    return xp.asarray(arr, dtype=dtype, device=device)
 
 
 ### Local Variables:
