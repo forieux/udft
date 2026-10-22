@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [5.0.0] - 2026-10-22
 ### Fixed
 - `dftn`, `idftn`, `rdftn`, `irdftn` (and their 1D/2D shortcuts) failed with
   PyTorch, which requires a tuple of axes, not a `range`.
