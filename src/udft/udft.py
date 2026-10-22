@@ -134,7 +134,7 @@ def dftn(
     ndim = int(inarray.ndim) if ndim is None else ndim
 
     if ndim < 1 or ndim > inarray.ndim:
-        raise ValueError("`ndim` must be >= 1.")
+        raise ValueError("`ndim` must respect `1 <= ndim <= inarray.ndim`.")
 
     if array_api_compat.is_numpy_array(inarray) and spfft:
         return spfft.fftn(
@@ -178,7 +178,7 @@ def idftn(
     ndim = int(inarray.ndim) if ndim is None else ndim
 
     if ndim < 1 or ndim > inarray.ndim:
-        raise ValueError("`ndim` must be >= 1.")
+        raise ValueError("`ndim` must respect `1 <= ndim <= inarray.ndim`.")
 
     if array_api_compat.is_numpy_array(inarray) and spfft:
         return spfft.ifftn(
@@ -319,7 +319,7 @@ def rdftn(
     ndim = int(inarray.ndim) if ndim is None else ndim
 
     if ndim < 1 or ndim > inarray.ndim:
-        raise ValueError("`ndim` must be >= 1.")
+        raise ValueError("`ndim` must respect `1 <= ndim <= inarray.ndim`.")
 
     if array_api_compat.is_numpy_array(inarray) and spfft:
         return spfft.rfftn(
@@ -455,7 +455,7 @@ def ir2fr(
         `len(shape)` last axes of ndarray.
     origin : tuple of int, optional
         The index of the origin (0 coordinate) of the impulse response. The
-        center of the array by default (`shape[i] // 2`).
+        center of the array by default (`imp_resp.shape[i] // 2`).
     onesided : boolean, optional
         If True, return only the half plane of the last axis with the real DFT
         (`rfftn`), to use with `rdftn` and `irdftn`. `imp_resp` must then be
@@ -470,9 +470,8 @@ def ir2fr(
 
     Notes
     -----
-    - The output is returned as C-contiguous array.
     - For convolution, the result must be used with unitary discrete Fourier
-      transform for the signal (`dftn` or equivalent).
+      transform for the signal (`rdftn` or `dftn`).
     - What it does is
 
       1. Place the IR with zero filling on the target shape
@@ -507,9 +506,8 @@ def ir2fr(
             │                       │     │2222│             │1111│
             └───────────────────────┘     └────┴─────────────┴────┘
 
-      3. Perform the DFT with 1/N normalisation on the last axes
-
-      4. Return the result as a contiguous array
+      3. Perform the DFT without normalisation (`norm="backward"`) on the last
+         axes
 
     """
     if not is_array(imp_resp):
@@ -630,9 +628,9 @@ def fr2ir(
 
     Notes
     -----
-    - The output is returned as C-contiguous array.
+    - The output is a copy, not a view (C-contiguous in practice).
     - For convolution, the result has to be used with unitary discrete Fourier
-      transform for the signal (udftn or equivalent).
+      transform for the signal (`rdftn` or `dftn`).
 
     """
     if not is_array(freq_resp):
@@ -662,6 +660,12 @@ def fr2ir(
         irpadded = xp.fft.irfftn(freq_resp, s=inshape, axes=axes, norm="backward")
     else:
         irpadded = xp.fft.ifftn(freq_resp, axes=axes, norm="backward")
+
+    if any(length > grid for length, grid in zip(shape, irpadded.shape[-ndim:])):
+        raise ValueError(
+            f"`shape` {tuple(shape)} must not exceed the frequency grid "
+            f"{tuple(irpadded.shape[-ndim:])}"
+        )
 
     irpadded = xp.roll(irpadded, shift=tuple(origin), axis=axes)
 
@@ -740,6 +744,9 @@ def laplacian(ndim: int, norm=False, like: Array | None = None) -> Array:
     out : array_like
         The impulse response
     """
+    if ndim <= 0:
+        raise ValueError("The number of dimensions `ndim` must respect `ndim > 0`.")
+
     imp = np.zeros((3,) * ndim)
     center = (1,) * ndim
     for dim in range(ndim):
@@ -775,7 +782,9 @@ def hnorm(inarray: Array, inshape: tuple[int, ...]) -> Array:
 
     Returns
     -------
-    norm : float
+    norm : array-like
+        The norm on the `len(inshape)` last axes, of shape
+        `inarray.shape[:-len(inshape)]` (0-d array without leading axes).
     """
     if not is_array(inarray):
         raise ValueError(_not_array_message)
@@ -809,6 +818,13 @@ def crandn(shape: tuple[int, ...], like: Array | None = None) -> Array:
     like : array-like, optional
         Return an array with the namespace and device of `like`, complex64 if
         `like` is float32 or complex64, complex128 otherwise. NumPy by default.
+
+    Notes
+    -----
+    With PyTorch, the draw uses `torch.randn` (seeded by `torch.manual_seed`).
+    Libraries without a global random state, like JAX, draw with NumPy then
+    transfer the result: under `jax.jit` the draw is done once at tracing and
+    every call returns the same values. Use `jax.random` in that case.
     """
     if like is None:
         return math.sqrt(0.5) * (

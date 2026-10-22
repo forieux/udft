@@ -57,18 +57,15 @@ The code is hosted on [GitHub](https://github.com/forieux/udft).
   [llms.txt](https://llmstxt.org/) proposal and gives agents a map of the
   documentation.
 - [`skills/udft`](skills/udft/SKILL.md) is an [Agent
-  Skill](https://agentskills.io) that teaches agents the conventions of udft
-  (unitary normalization, last axes, `irdftn` shape, `ir2fr` convolution
-  model). In Claude Code, install it from this repository, which is also a
-  plugin marketplace:
-
+  Skill](https://agentskills.io) that teaches agents the conventions of udft. In
+  Claude Code, install it from this repository, which is also a plugin
+  marketplace:
   ```
   /plugin install udft --marketplace forieux/udft
   ```
-
-  or, in two steps, `/plugin marketplace add forieux/udft` then `/plugin
-  install udft@udft`. For other agents, copy the `skills/udft` directory into
-  their skills directory.
+  or with `/plugin marketplace add forieux/udft` then `/plugin install
+  udft@udft`. For other agents, copy the `skills/udft` directory into their
+  skills directory.
 
 ## How AI is used
 
