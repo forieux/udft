@@ -513,7 +513,7 @@ def ir2fr(
         )
 
     if origin is None:
-        origin = [ndim // 2 for ndim in imp_resp.shape[-ndim:]]
+        origin = [length // 2 for length in imp_resp.shape[-ndim:]]
 
     if len(origin) != ndim:
         raise ValueError("`origin` and `shape` must have the same length")
@@ -530,8 +530,22 @@ def ir2fr(
     # │                       │
     # │                       │
     # └───────────────────────┘
-    irpadded = xp.zeros(imp_resp.shape[:-ndim] + shape)  # zeros of target shape
-    irpadded[tuple(slice(0, axe) for axe in imp_resp.shape)] = imp_resp
+    # Same dtype and device as `imp_resp` (default float dtype for integer input)
+    dtype = (
+        imp_resp.dtype
+        if xp.isdtype(imp_resp.dtype, ("real floating", "complex floating"))
+        else None
+    )
+    irpadded = xp.zeros(
+        tuple(imp_resp.shape[:-ndim]) + tuple(shape),
+        dtype=dtype,
+        device=array_api_compat.device(imp_resp),
+    )
+    idx = tuple(slice(0, axe) for axe in imp_resp.shape)
+    if array_api_compat.is_jax_array(irpadded):
+        irpadded = irpadded.at[idx].set(imp_resp)  # JAX arrays are immutable
+    else:
+        irpadded[idx] = imp_resp
 
     # Roll (circshift in Matlab) to move the origin at index 0 (DFT hypothesis)
     # ┌────────┬──────────────┐     ┌────┬─────────────┬────┐
@@ -545,23 +559,13 @@ def ir2fr(
     # │                       │     │2222│             │1111│
     # │                       │     │2222│             │1111│
     # └───────────────────────┘     └────┴─────────────┴────┘
-    for axe, shift in enumerate(origin):
-        irpadded = xp.roll(irpadded, -shift, imp_resp.ndim - ndim + axe)
+    axes = tuple(range(-ndim, 0))
+    irpadded = xp.roll(irpadded, shift=tuple(-shift for shift in origin), axis=axes)
 
     # Perform the DFT on the last axes
     if real:
-        tf = xp.fft.rfftn(
-            irpadded,
-            axes=list(range(imp_resp.ndim - ndim, imp_resp.ndim)),
-            norm="backward",
-        )
-        return np.ascontiguousarray(tf, like=imp_resp)
-    tf = xp.fft.fftn(
-        irpadded,
-        axes=list(range(imp_resp.ndim - ndim, imp_resp.ndim)),
-        norm="backward",
-    )
-    return np.ascontiguousarray(tf, like=imp_resp)
+        return xp.fft.rfftn(irpadded, axes=axes, norm="backward")
+    return xp.fft.fftn(irpadded, axes=axes, norm="backward")
 
 
 def fr2ir(
@@ -633,26 +637,18 @@ def fr2ir(
     if inshape is not None and len(inshape) != ndim:
         raise ValueError("`inshape` and `shape` must have the same length")
 
+    axes = tuple(range(-ndim, 0))
+
     if real:
-        irpadded = xp.fft.irfftn(
-            freq_resp,
-            s=inshape,
-            axes=list(range(freq_resp.ndim - ndim, freq_resp.ndim)),
-            norm="backward",
-        )
+        irpadded = xp.fft.irfftn(freq_resp, s=inshape, axes=axes, norm="backward")
     else:
-        irpadded = xp.fft.ifftn(
-            freq_resp,
-            axes=list(range(freq_resp.ndim - ndim, freq_resp.ndim)),
-            norm="backward",
-        )
+        irpadded = xp.fft.ifftn(freq_resp, axes=axes, norm="backward")
 
-    for axe, shift in enumerate(origin):
-        irpadded = xp.roll(irpadded, shift, freq_resp.ndim - ndim + axe)
+    irpadded = xp.roll(irpadded, shift=tuple(origin), axis=axes)
 
-    return np.ascontiguousarray(
-        a=irpadded[(..., *(slice(0, length) for length in shape))],
-        like=freq_resp,
+    # Copy so the output is not a view of the padded array (C-contiguous in practice)
+    return xp.asarray(
+        irpadded[(..., *(slice(0, length) for length in shape))], copy=True
     )
 
 
