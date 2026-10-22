@@ -131,7 +131,7 @@ def dftn(
 
     xp = array_api_compat.array_namespace(inarray)
 
-    ndim = inarray.ndim if ndim is None else ndim
+    ndim = int(inarray.ndim) if ndim is None else ndim
 
     if ndim < 1 or ndim > inarray.ndim:
         raise ValueError("`ndim` must be >= 1.")
@@ -175,7 +175,7 @@ def idftn(
 
     xp = array_api_compat.array_namespace(inarray)
 
-    ndim = inarray.ndim if ndim is None else ndim
+    ndim = int(inarray.ndim) if ndim is None else ndim
 
     if ndim < 1 or ndim > inarray.ndim:
         raise ValueError("`ndim` must be >= 1.")
@@ -316,7 +316,7 @@ def rdftn(
 
     xp = array_api_compat.array_namespace(inarray)
 
-    ndim = inarray.ndim if ndim is None else ndim
+    ndim = int(inarray.ndim) if ndim is None else ndim
 
     if ndim < 1 or ndim > inarray.ndim:
         raise ValueError("`ndim` must be >= 1.")
