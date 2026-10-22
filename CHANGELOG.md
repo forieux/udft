@@ -20,7 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hnorm` returns a scalar instead of a `(1,)` array when the last axis is
   even.
 - `crandn(like=x)` failed for `x` with more than one element.
-- `diff_ir`, `laplacian` and `crandn` with `like=`.
+- `diff_ir`, `laplacian` and `crandn` with `like=` return an array on the
+  device of `like`.
 - `fr2ir` raises `ValueError` when `shape` exceeds the frequency grid.
 - `laplacian` raises `ValueError` for `ndim <= 0`, like `diff_ir`.
 - `diff_ir` accepts a negative `axis` (`-ndim <= axis < ndim`) and raises

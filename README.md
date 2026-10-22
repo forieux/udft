@@ -1,12 +1,12 @@
 # UDFT: Unitary Discrete Fourier Transform (and related)
 
-![licence](https://img.shields.io/github/license/forieux/udft) ![pypi](https://img.shields.io/pypi/v/udft) ![status](https://img.shields.io/pypi/status/udft) ![version](https://img.shields.io/pypi/pyversions/udft) ![maintained](https://img.shields.io/maintenance/yes/2025) [![Documentation Status](https://readthedocs.org/projects/udft/badge/?version=latest)](https://udft.readthedocs.io/en/latest/?badge=latest)
+![licence](https://img.shields.io/github/license/forieux/udft) ![pypi](https://img.shields.io/pypi/v/udft) ![status](https://img.shields.io/pypi/status/udft) ![version](https://img.shields.io/pypi/pyversions/udft) ![maintained](https://img.shields.io/maintenance/yes/2026) [![Documentation Status](https://readthedocs.org/projects/udft/badge/?version=latest)](https://udft.readthedocs.io/en/latest/?badge=latest)
 
 This module implements unitary discrete Fourier transform, that is orthonormal
-`det(F) = 1` and `F⁻¹ = F^*`. This module existed before the introduction of the
+`|det(F)| = 1` and `F⁻¹ = F^*`. This module existed before the introduction of the
 `norm="ortho"` keyword and is now a very (very) thin wrapper around libraries.
 
-It is useful for convolution [1]: they respect the Perceval equality, e.g., the
+It is useful for convolution [1]: they respect the Parseval equality, e.g., the
 value of the null frequency is equal to `1/√N * ∑ₙ xₙ`.
 
 ```
