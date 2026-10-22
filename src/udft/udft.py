@@ -57,6 +57,7 @@ from types import ModuleType
 from typing import Any, TypeGuard
 
 import array_api_compat
+import numpy
 from array_api_compat import numpy as np
 
 spfft: ModuleType | None
@@ -746,7 +747,7 @@ def laplacian(ndim: int, norm=False, like: Array | None = None) -> Array:
             imp[center[:dim] + (side,) + center[dim + 1 :]] = -1.0
     imp[center] = 2.0 * ndim
     if norm:
-        imp = imp / np.sum(np.abs(imp))
+        imp = imp / (4.0 * ndim)  # sum of |imp|: 2 ndim at center, -1 on 2 ndim sides
 
     return _asarray_like(imp, like)
 
@@ -811,7 +812,8 @@ def crandn(shape: tuple[int, ...], like: Array | None = None) -> Array:
     """
     if like is None:
         return math.sqrt(0.5) * (
-            np.random.standard_normal(shape) + 1j * np.random.standard_normal(shape)
+            numpy.random.standard_normal(shape)
+            + 1j * numpy.random.standard_normal(shape)
         )
 
     xp = array_api_compat.array_namespace(like)
@@ -828,7 +830,7 @@ def crandn(shape: tuple[int, ...], like: Array | None = None) -> Array:
 
     # Draw on device with numpy-like random module (numpy, cupy), else with numpy
     # then transfer (eg. JAX that has no global random state)
-    rnd = xp.random if hasattr(xp, "random") else np.random
+    rnd = xp.random if hasattr(xp, "random") else numpy.random
     arr = math.sqrt(0.5) * (
         rnd.standard_normal(shape) + 1j * rnd.standard_normal(shape)
     )

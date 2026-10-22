@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `diff_ir`, `laplacian` and `crandn` with `like=`.
 
 ### Changed
+- Require `array-api-compat>=1.13.0`: earlier versions do not recognize JAX
+  arrays inside `jax.jit`.
 - **Breaking:** the `real` keyword of `ir2fr` and `fr2ir` is renamed
   `onesided`. It selects the half plane (`rfftn`/`irfftn`, to use with
   `rdftn`/`irdftn`) or the full plane (`fftn`/`ifftn`), not the nature of
