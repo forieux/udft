@@ -26,7 +26,7 @@ copyright = "2021—2026, François Orieux"
 author = "François Orieux"
 
 # The full version, including alpha/beta/rc tags
-release = "4.1.0"
+release = "5.0.0"
 # The short X.Y version
 version = ".".join(release.split(".")[:2])
 
